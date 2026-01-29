@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Qaza Notion UI</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css"/>
+
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            /* Fix: Matching bg-body and bg-card to remove the "extra box" look */
+            --bg-body: #FFFFFF; 
+            --bg-card: #FFFFFF;
+            --bg-hover: #F7F6F3;
+            --text-main: #37352F;
+            --text-sub: #787774;
+            --border: #E0E0E0;
+            
+            --male-blue: #2196F3;
+            --female-pink: #E91E63;
+            --female-bg: #FCE4EC;
+            
+            --brand: #448361; 
+            --brand-bg: #EDF3EC; 
+            
+            --notion-gray: #787774;
+            --notion-brown: #9F6B53;
+            --notion-orange: #D9730D;
+            --notion-yellow: #CB912F;
+            --notion-green: #448361;
+            --notion-blue: #337EA9;
+            --notion-purple: #9065B0;
+            --notion-pink: #C14C8A;
+            --notion-red: #D44C47;
+            
+            --nav-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            --radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            /* Fix: Matching bg-body and bg-card for transparency effect in dark mode */
+            --bg-body: #191919;
+            --bg-card: #191919;
+            --bg-hover: #252525;
+            --text-main: #FFFFFF;
+            --text-sub: #A0A0A0;
+            --border: #333333;
+            --female-bg: #471828;
+
+            --notion-gray: #979A9B;
+            --notion-brown: #BA856F;
+            --notion-orange: #C77D48;
+            --notion-yellow: #CA9849;
+            --notion-green: #529E72;
+            --notion-blue: #5E87C9;
+            --notion-purple: #9D68D3;
+            --notion-pink: #D95788;
+            --notion-red: #DF5452;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            width: 100vw;
+            height: 100vh;
+            margin: 0; 
+            padding: 0; /* Removed padding to fix the transparency/extra box issue */
+            background: var(--bg-body);
+            overflow: hidden;
+        }
+
+        .card { 
+            display: flex; flex-direction: column; 
+            width: 100%; 
+            height: 100%; 
+            background: var(--bg-card); 
+            border: 3px solid var(--brand); /* Restored 3px line */
+            border-radius: var(--radius); /* Restored rounded corners */
+            padding: 16px; 
+            padding-bottom: 70px; 
+            position: relative; 
+            overflow: hidden;
+            transition: border-color 0.3s ease;
+        }
+
+        /* HEADER */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-shrink: 0; }
+        .title-group { display: flex; align-items: center; gap: 8px; }
+        .app-icon { color: var(--brand); background: var(--brand-bg); padding: 5px; border-radius: 8px; display: flex; } 
+        .app-icon span { font-size: 18px; }
+        .title { font-size: 1rem; color: var(--text-main); font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+        
+        .controls { display: flex; gap: 2px; }
+        .btn-icon {
+            background: transparent; border: none; cursor: pointer; color: var(--text-main);
+            width: 28px; height: 28px; border-radius: 6px; transition: background 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-icon:hover { background: var(--bg-hover); }
+
+        /* PAGES */
+        .page-content {
+            display: none;
+            overflow-y: auto;
+            flex: 1; 
+            padding-bottom: 20px; 
+        }
+        .page-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .page-content::-webkit-scrollbar { width: 3px; }
+        .page-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        /* NAVIGATION */
+        .bottom-nav-container {
+            position: absolute;
+            bottom: 12px; 
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            width: 80%; 
+            max-width: 240px;
+        }
+        .pill-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 3px; 
+            box-shadow: var(--nav-shadow);
+            backdrop-filter: blur(10px);
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 6px 0; 
+            border-radius: 100px;
+            color: var(--text-sub);
+            transition: all 0.2s ease;
+        }
+        .nav-item.active { color: var(--bg-card); background: var(--brand); }
+        .nav-item span.label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; margin-top: 1px; } 
+
+        /* GENDER */
+        .gender-container { display: flex; gap: 6px; margin-bottom: 12px; } 
+        .gender-btn {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 8px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-sub); font-weight: 600; font-size: 0.8rem;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .gender-btn.active { border-color: var(--brand); color: var(--brand); background: var(--brand-bg); }
+
+        /* INPUTS */
+        .input-card { background: var(--bg-hover); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid transparent; position: relative; }
+        .label-row { display: flex; justify-content: space-between; margin-bottom: 2px; align-items: center; }
+        .field-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .date-input { width: 100%; background: transparent; border: none; font-size: 0.9rem; font-weight: 700; color: var(--text-main); outline: none; }
+        .calendar-icon-btn { position: absolute; right: 0; background: none; border: none; cursor: pointer; color: var(--text-sub); padding: 4px; display: flex; align-items: center; }
+        .hijri-tag { font-size: 0.6rem; color: var(--brand); font-weight: 600; opacity: 0.8; }
+
+        /* HERO & GRID */
+        .hero-section { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 12px; background: var(--brand-bg); border: 2px solid var(--brand); border-radius: 16px; min-height: 90px; }
+        .hero-val { font-size: 1.5rem; font-weight: 800; color: var(--text-main); line-height: 1.2; } 
+        .hero-lbl { font-size: 0.65rem; font-weight: 700; color: var(--brand); margin-top: 4px; text-transform: uppercase; }
+        .hero-arrow { background: rgba(0,0,0,0.06); border: none; cursor: pointer; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        .prayer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .p-card { display: flex; flex-direction: column; justify-content: space-between; padding: 8px; border-radius: 12px; height: 110px; border: 1px solid transparent; }
+        .p-card.p-fajr { background: rgba(68, 131, 97, 0.08); border-color: rgba(68, 131, 97, 0.15); color: var(--notion-green); }
+        .p-card.p-dhuhr { background: rgba(203, 145, 47, 0.08); border-color: rgba(203, 145, 47, 0.15); color: var(--notion-yellow); }
+        .p-card.p-asr { background: rgba(217, 115, 13, 0.08); border-color: rgba(217, 115, 13, 0.15); color: var(--notion-orange); }
+        .p-card.p-maghrib { background: rgba(212, 76, 71, 0.08); border-color: rgba(212, 76, 71, 0.15); color: var(--notion-red); }
+        .p-card.p-isha { background: rgba(51, 126, 169, 0.08); border-color: rgba(51, 126, 169, 0.15); color: var(--notion-blue); }
+        .p-card.p-witr { background: rgba(144, 101, 176, 0.08); border-color: rgba(144, 101, 176, 0.15); color: var(--notion-purple); }
+        .p-card-val { font-size: 1rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
+        .p-card-detail { font-size: 0.75rem; color: var(--text-sub); font-weight: 600; }
+        
+        .tracker-input { width: 100%; padding: 2px; border: 2px solid var(--border); border-radius: 6px; text-align: center; font-weight: 700; font-size: 0.7rem; background: var(--bg-card); color: var(--text-main); margin-top: 4px; }
+        .view-toggle { display: flex; justify-content: center; margin-bottom: 12px; }
+        .toggle-bg { background: var(--bg-hover); border-radius: 100px; padding: 3px; display: flex; }
+        .toggle-opt { padding: 4px 10px; border-radius: 100px; font-size: 0.65rem; font-weight: 700; color: var(--text-sub); cursor: pointer; }
+        .toggle-opt.active { background: var(--bg-card); color: var(--brand); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+
+        /* COLORS Grid */
+        .color-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .color-dot.selected { box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--brand); }
+
+        @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+    </style>
+</head>
+<body id="body">
+
+<div class="card" id="mainCard">
+    <div class="header">
+        <div class="title-group">
+            <div class="app-icon"><span class="material-symbols-rounded">moon_stars</span></div>
+            <h1 class="title">QazaCalc</h1>
+        </div>
+        <div class="controls">
+            <button class="btn-icon" onclick="toggleTheme()" title="Theme"><span class="material-symbols-rounded" id="themeIcon">dark_mode</span></button>
+        </div>
+    </div>
+
+    <!-- PAGE: PROFILE -->
+    <div id="page-profile" class="page-content active">
+        <span class="page-heading" style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block;">Your Profile</span>
+        <div class="gender-container">
+            <div class="gender-btn male active" id="btnMale" onclick="setGender('men')">Male</div>
+            <div class="gender-btn female" id="btnFemale" onclick="setGender('women')">Female</div>
+        </div>
+
+        <div class="counter-hero" id="periodBox" style="display: none;">
+            <button class="c-btn" onclick="updateMainCounter(-1)"><span class="material-symbols-rounded">remove</span></button>
+            <div class="c-display"><input type="number" id="periodInput" class="c-input" value="7" oninput="calculate()"><div class="c-label">Avg Period Days</div></div>
+            <button class="c-btn" onclick="updateMainCounter(1)"><span class="material-symbols-rounded">add</span></button>
+        </div>
+
+        <div class="input-card" id="cardBirth">
+            <div class="label-row"><span class="field-label">Birth Date</span><span class="hijri-tag" id="hBirth">--</span></div>
+            <input type="text" id="birthDate" class="date-input" placeholder="DD/MM/YYYY" maxlength="10">
+            <button class="calendar-icon-btn" id="btnBirth"><span class="material-symbols-rounded">calendar_today</span></button>
+        </div>
+
+        <div class="input-card" id="cardPuberty">
+            <div class="label-row"><span class="field-label">Puberty Date</span><span class="hijri-tag" id="hPuberty">--</span></div>
+            <input type="text" id="pubertyDate" class="date-input" placeholder="DD/MM/YYYY" maxlength="10">
+            <button class="calendar-icon-btn" id="btnPuberty"><span class="material-symbols-rounded">calendar_today</span></button>
+        </div>
+
+        <div class="input-card" id="cardEnd">
+            <div class="label-row"><span class="field-label">Current Date</span><span class="hijri-tag" id="hEnd">--</span></div>
+            <input type="text" id="endDate" class="date-input" placeholder="DD/MM/YYYY" maxlength="10">
+            <button class="calendar-icon-btn" id="btnEnd"><span class="material-symbols-rounded">calendar_today</span></button>
+        </div>
+    </div>
+
+    <!-- PAGE: PROGRESS -->
+    <div id="page-progress" class="page-content">
+        <div class="hero-section">
+            <button class="hero-arrow" onclick="switchHero(-1)"><span class="material-symbols-rounded">chevron_left</span></button>
+            <div class="hero-content"><div class="hero-val" id="heroVal">0</div><div class="hero-lbl" id="heroLbl">Days Prayer Pending</div></div>
+            <button class="hero-arrow" onclick="switchHero(1)"><span class="material-symbols-rounded">chevron_right</span></button>
+        </div>
+        <div class="view-toggle">
+            <div class="toggle-bg">
+                <div class="toggle-opt active" id="vPrayers" onclick="toggleView('prayers')">Prayers</div>
+                <div class="toggle-opt" id="vTracker" onclick="toggleView('tracker')">Tracker</div>
+                <div class="toggle-opt" id="vAdjust" onclick="toggleView('adjust')">Adjust</div>
+            </div>
+        </div>
+        <div class="prayer-grid" id="prayerGrid"></div>
+    </div>
+
+    <!-- PAGE: SETTINGS -->
+    <div id="page-settings" class="page-content">
+        <span class="page-heading" style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block;">App Settings</span>
+        <div class="settings-container">
+            <div class="setting-block"><div class="field-label">Accent Color</div><div class="color-grid" id="colorGrid"></div></div>
+            <div class="setting-block">
+                <div class="field-label">Avg. Time per 2 Rakats</div>
+                <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                    <input type="text" id="timePer2Rakat" class="tracker-input" style="width:50px; margin-top:0;" value="5" oninput="updateTimeSetting(this.value)">
+                    <span style="font-size:0.75rem; color:var(--text-sub);">minutes</span>
+                </div>
+            </div>
+            <button class="reset-btn-full" onclick="resetApp()" style="width:100%; padding:10px; border:none; background:rgba(212,76,71,0.1); color:var(--notion-red); border-radius:10px; font-weight:700; cursor:pointer;">Reset All Data</button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav-container">
+        <div class="pill-nav">
+            <button class="nav-item active" onclick="navTo('profile')" id="nav-profile"><span class="material-symbols-rounded">person</span><span class="label">Profile</span></button>
+            <button class="nav-item" onclick="navTo('progress')" id="nav-progress"><span class="material-symbols-rounded">insights</span><span class="label">Progress</span></button>
+            <button class="nav-item" onclick="navTo('settings')" id="nav-settings"><span class="material-symbols-rounded">settings</span><span class="label">Settings</span></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- VARIABLES ---
+    let state = { 
+        gender: 'men', periodDays: 7, birth: null, puberty: null, 
+        end: new Date().toISOString().split('T')[0], totalDays: null, 
+        viewMode: 'prayers', heroSlide: 0, 
+        deductions: { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0, Witr: 0 }, 
+        paces: { Fajr: 1, Dhuhr: 1, Asr: 1, Maghrib: 1, Isha: 1, Witr: 1 }, 
+        minsPer2Rakats: 5 
+    };
+
+    let pickers = {};
+    const prayerData = {
+        Fajr: { r: 2, icon: 'wb_twilight', class: 'p-fajr' },
+        Dhuhr: { r: 4, icon: 'light_mode', class: 'p-dhuhr' },
+        Asr: { r: 4, icon: 'sunny', class: 'p-asr' },
+        Maghrib: { r: 3, icon: 'wb_twilight', class: 'p-maghrib' },
+        Isha: { r: 4, icon: 'bedtime', class: 'p-isha' },
+        Witr: { r: 3, icon: 'nightlight', class: 'p-witr' }
+    };
+
+    const notionColors = [
+        { var: '--notion-gray',   bgLight: '#F1F1EF', bgDark: '#252525' },
+        { var: '--notion-brown',  bgLight: '#F4EEEE', bgDark: '#2F2723' },
+        { var: '--notion-orange', bgLight: '#FBF3DB', bgDark: '#392B1E' },
+        { var: '--notion-yellow', bgLight: '#FDF5D8', bgDark: '#392E1E' },
+        { var: '--notion-green',  bgLight: '#EDF3EC', bgDark: '#2D3631' },
+        { var: '--notion-blue',   bgLight: '#E6F3F7', bgDark: '#28343E' },
+        { var: '--notion-purple', bgLight: '#F6F3F9', bgDark: '#31283E' },
+        { var: '--notion-pink',   bgLight: '#F9F2F5', bgDark: '#372832' },
+        { var: '--notion-red',    bgLight: '#FDEBEC', bgDark: '#3C292A' }
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // Fix: Auto Dark Mode based on system (No localstorage saving as requested)
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+        applyTheme(prefersDark.matches);
+        prefersDark.addEventListener('change', (e) => applyTheme(e.matches));
+        
+        loadData();
+        initPicker('birthDate', 'btnBirth', 'birth', 'cardBirth', true);
+        initPicker('pubertyDate', 'btnPuberty', 'puberty', 'cardPuberty');
+        initPicker('endDate', 'btnEnd', 'end', 'cardEnd');
+        initColors();
+        applyStateToUI();
+        calculate();
+    });
+
+    function applyTheme(dark) {
+        if(dark) {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').innerText = 'light_mode';
+        } else {
+            document.body.removeAttribute('data-theme');
+            document.getElementById('themeIcon').innerText = 'dark_mode';
+        }
+        refreshBrandTheme();
+    }
+
+    function toggleTheme() { applyTheme(!document.body.hasAttribute('data-theme')); }
+
+    function navTo(pageId) {
+        document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`page-${pageId}`).classList.add('active');
+        document.getElementById(`nav-${pageId}`).classList.add('active');
+    }
+
+    function calculate() {
+        if(!state.puberty || !state.end) {
+            state.totalDays = null;
+        } else {
+            let diff = Math.ceil((new Date(state.end) - new Date(state.puberty)) / 86400000);
+            if(diff < 0) diff = 0;
+            if(state.gender === 'women') diff -= Math.round((diff / 30.44) * state.periodDays);
+            state.totalDays = diff;
+        }
+        renderList();
+    }
+
+    function renderList() {
+        const grid = document.getElementById('prayerGrid');
+        grid.innerHTML = '';
+        updateHeroDisplay();
+        const effectiveDays = state.totalDays || 0;
+
+        for (const [key, data] of Object.entries(prayerData)) {
+            const deducted = state.deductions[key] || 0;
+            const net = Math.max(0, effectiveDays - deducted);
+            let mainVal = net.toLocaleString();
+            let detail = `Total Rakats: ${(net * data.r).toLocaleString()}`;
+            let inputArea = "";
+
+            if (state.viewMode === 'tracker') {
+                const pace = state.paces[key] || 1;
+                const daysToFinish = Math.ceil(net / pace);
+                mainVal = (net > 0 && pace > 0) ? new Date(Date.now() + daysToFinish * 86400000).toLocaleDateString('en-GB', {day:'numeric', month:'short'}) : "Done";
+                detail = `Pace: ${pace}/day`;
+                inputArea = `<input type="number" class="tracker-input" value="${pace}" oninput="updatePace('${key}', this.value)">`;
+            } else if (state.viewMode === 'adjust') {
+                mainVal = deducted.toLocaleString();
+                detail = "Deductions";
+                inputArea = `<input type="number" class="tracker-input" value="${deducted}" oninput="manualDeductChange('${key}', this.value)">`;
+            }
+
+            const card = document.createElement('div');
+            card.className = `p-card ${data.class}`;
+            card.innerHTML = `<div><div class="p-card-val">${mainVal}</div><div class="p-card-detail">${key}</div></div>${inputArea}`;
+            grid.appendChild(card);
+        }
+    }
+
+    function updateHeroDisplay() {
+        document.getElementById('heroVal').innerText = state.totalDays !== null ? state.totalDays.toLocaleString() : "Add Dates";
+    }
+
+    function setGender(g) {
+        state.gender = g;
+        document.getElementById('btnMale').classList.toggle('active', g === 'men');
+        document.getElementById('btnFemale').classList.toggle('active', g === 'women');
+        document.getElementById('periodBox').style.display = g === 'women' ? 'flex' : 'none';
+        calculate(); saveData();
+    }
+
+    function updatePace(key, val) { state.paces[key] = parseFloat(val) || 0; saveData(); calculate(); }
+    function manualDeductChange(key, val) { state.deductions[key] = parseInt(val) || 0; saveData(); calculate(); }
+    function updateMainCounter(delta) { state.periodDays = Math.max(0, state.periodDays + delta); document.getElementById('periodInput').value = state.periodDays; calculate(); saveData(); }
+
+    function initPicker(id, btnId, key, cardId, autoPub = false) {
+        pickers[key] = new Litepicker({
+            element: document.getElementById(id),
+            format: 'DD/MM/YYYY',
+            setup: (p) => {
+                p.on('selected', (date) => {
+                    state[key] = date.dateInstance.toISOString().split('T')[0];
+                    if(autoPub && key === 'birth') {
+                        let d = new Date(date.dateInstance); d.setFullYear(d.getFullYear() + 12);
+                        state.puberty = d.toISOString().split('T')[0];
+                        document.getElementById('pubertyDate').value = d.toLocaleDateString('en-GB');
+                    }
+                    updateHijri(state[key], 'h' + key.charAt(0).toUpperCase() + key.slice(1));
+                    calculate(); saveData();
+                });
+            }
+        });
+    }
+
+    const hFmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn', {day:'numeric', month:'short', year:'numeric'});
+    function updateHijri(iso, id) { if(iso) document.getElementById(id).innerText = hFmt.format(new Date(iso)).replace(' AH',''); }
+
+    function initColors() {
+        const grid = document.getElementById('colorGrid');
+        notionColors.forEach((c, idx) => {
+            const dot = document.createElement('div');
+            dot.className = 'color-dot'; dot.style.background = `var(${c.var})`;
+            dot.onclick = () => {
+                document.documentElement.style.setProperty('--brand', `var(${c.var})`);
+                localStorage.setItem('qazaColorIndex', idx);
+                refreshBrandTheme();
+            };
+            grid.appendChild(dot);
+        });
+    }
+
+    function refreshBrandTheme() {
+        const idx = localStorage.getItem('qazaColorIndex') || 4;
+        const color = notionColors[idx];
+        const isDark = document.body.hasAttribute('data-theme');
+        document.documentElement.style.setProperty('--brand-bg', isDark ? color.bgDark : color.bgLight);
+    }
+
+    function toggleView(v) { state.viewMode = v; calculate(); }
+    function loadData() { const raw = localStorage.getItem('qazaData'); if(raw) state = {...state, ...JSON.parse(raw)}; }
+    function saveData() { localStorage.setItem('qazaData', JSON.stringify(state)); }
+    function applyStateToUI() { setGender(state.gender); document.getElementById('periodInput').value = state.periodDays; }
+</script>
+</body>
+</html>

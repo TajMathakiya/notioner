@@ -40,10 +40,11 @@
             --notion-pink: #C14C8A;
             --notion-red: #D44C47;
             
-            /* FLAT DESIGN OVERRIDES - NO SHADOWS */
+            /* FLAT DESIGN - NO SHADOWS */
             --shadow: none;
             --nav-shadow: none;
-            --radius: 16px;
+            --radius: 0px; /* Optional: Set to 0 if you want completely sharp corners for full embed fit */
+            --card-radius: 16px; /* Keeping card radius for aesthetics inside the embed */
 
             /* Litepicker Overrides */
             --litepicker-container-months-color-bg: #fff;
@@ -94,27 +95,33 @@
         body { 
             font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; padding: 16px; background: transparent;
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 0; /* REMOVED PADDING */
+            background: transparent;
+            overflow: hidden; /* Prevent body scroll, handle inside card */
         }
 
         /* --- CARD & LAYOUT LOGIC --- */
         .card { 
             display: flex; flex-direction: column; 
-            background: var(--bg-card); border-radius: var(--radius); 
+            background: var(--bg-card); 
+            border-radius: var(--card-radius); 
             border: 3px solid var(--brand); 
             padding: 20px; 
-            padding-bottom: 90px; /* Extra padding for floating nav */
-            box-shadow: var(--shadow); 
+            padding-bottom: 90px; 
+            box-shadow: none; /* FLAT DESIGN */
             position: relative; overflow: hidden;
             transition: border-color 0.3s ease, width 0.3s ease, max-height 0.3s ease;
             flex-shrink: 0;
-            height: 85vh; 
+            
+            /* Fill the Embed */
+            height: 100vh; 
             
             /* PHONE MODE (DEFAULT) */
             width: 340px; 
-            min-width: 300px;
-            max-width: 95vw; 
-            max-height: 800px; 
+            max-width: 100vw; /* Allow shrinking for small screens */
+            max-height: 800px; /* Cap height per request */
         }
 
         /* PC MODE */
@@ -145,11 +152,9 @@
             overflow-y: auto;
             height: 100%;
             padding-right: 4px; 
-            /* Hide scrollbar */
-            scrollbar-width: none;  /* Firefox */
-            -ms-overflow-style: none;  /* IE 10+ */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-        /* Hide scrollbar WebKit */
         .page-content::-webkit-scrollbar { display: none; width: 0; background: transparent; }
         
         .page-content.active {
@@ -157,7 +162,6 @@
             animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* SLIDE ANIMATION FOR SWIPE FEEL */
         @keyframes slideIn { 
             from { opacity: 0; transform: translateX(15px); } 
             to { opacity: 1; transform: translateX(0); } 
@@ -191,9 +195,8 @@
             border: 1px solid var(--border);
             border-radius: 100px;
             padding: 5px;
-            box-shadow: var(--nav-shadow);
-            /* REMOVED BLUR */
-            backdrop-filter: none;
+            box-shadow: none; /* FLAT */
+            backdrop-filter: none; /* FLAT */
         }
 
         .nav-item {
@@ -216,14 +219,13 @@
         .nav-item.active {
             color: var(--bg-card);
             background: var(--brand);
-            /* REMOVED SHADOW */
             box-shadow: none;
         }
         
         .nav-item .material-symbols-rounded { font-size: 20px; margin-bottom: 2px; }
         .nav-item span.label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* GENDER & SELECTION TOGGLES */
+        /* GENDER & OPTION TOGGLES */
         .gender-container { display: flex; gap: 8px; margin-bottom: 16px; } 
         .gender-btn {
             flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -234,14 +236,13 @@
         .gender-btn.male.active { background: rgba(33, 150, 243, 0.1); border-color: var(--male-blue); color: var(--male-blue); }
         .gender-btn.female.active { background: rgba(233, 30, 99, 0.1); border-color: var(--female-pink); color: var(--female-pink); }
 
-        /* LAYOUT SELECTOR HIGHLIGHT (Brand Color) */
-        .layout-selector .gender-btn.active {
+        /* HIGHLIGHT SELECTED OPTION WITH BRAND COLOR (Layout & Theme) */
+        .option-selector .gender-btn.active {
             background: var(--brand); 
             border-color: var(--brand); 
-            color: var(--bg-card); /* Text becomes card bg color (usually white) */
+            color: var(--bg-card); 
         }
-        /* Fix icon color inside active layout button */
-        .layout-selector .gender-btn.active .material-symbols-rounded {
+        .option-selector .gender-btn.active .material-symbols-rounded {
             color: var(--bg-card);
         }
 
@@ -255,7 +256,7 @@
         
         .c-btn {
             width: 36px; height: 36px; border-radius: 50%; background: var(--bg-card);
-            border: 1px solid var(--border); /* Added border for flat definition */
+            border: 1px solid var(--border);
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             box-shadow: none; color: var(--text-main);
             transition: transform 0.1s;
@@ -302,9 +303,7 @@
         
         .date-input::placeholder {
             font-weight: 500; 
-            opacity: 0.3;
-            color: var(--text-sub);
-            text-transform: uppercase;
+            opacity: 0.3; color: var(--text-sub); text-transform: uppercase;
         }
 
         .calendar-icon-btn {
@@ -323,11 +322,10 @@
         .hero-section { 
             display: flex; align-items: center; justify-content: space-between; 
             margin-bottom: 16px; padding: 16px; 
-            background: var(--brand-bg); /* Solid Background Color */
+            background: var(--brand-bg); 
             border: 2px solid var(--brand); 
             border-radius: 16px; 
             color: var(--brand);
-            /* FIXED HEIGHT FOR CONSISTENCY */
             height: 130px;
         }
         .hero-content { text-align: center; flex: 1; transition: opacity 0.2s; }
@@ -352,7 +350,6 @@
         .hero-arrow span { font-size: 20px; }
 
         /* PRAYER GRID */
-        /* Phone Mode (Default) - 2 Columns */
         .prayer-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -360,8 +357,6 @@
             padding-bottom: 20px; 
             transition: grid-template-columns 0.3s ease;
         }
-
-        /* PC Mode Override - 3 Columns */
         .card.layout-pc .prayer-grid {
             grid-template-columns: 1fr 1fr 1fr;
         }
@@ -371,13 +366,10 @@
             padding: 10px; border-radius: 12px;
             transition: transform 0.2s; position: relative;
             border: 1px solid transparent;
-            /* Ensure consistent height across grid cells */
-            height: 100%;
-            min-height: 125px; 
+            height: 100%; min-height: 125px; 
         }
         .p-card:hover { transform: scale(1.02); }
 
-        /* Prayer Specific Colors for Cards */
         .p-card.p-fajr { background: rgba(68, 131, 97, 0.08); border-color: rgba(68, 131, 97, 0.15); color: var(--notion-green); }
         .p-card.p-dhuhr { background: rgba(203, 145, 47, 0.08); border-color: rgba(203, 145, 47, 0.15); color: var(--notion-yellow); }
         .p-card.p-asr { background: rgba(217, 115, 13, 0.08); border-color: rgba(217, 115, 13, 0.15); color: var(--notion-orange); }
@@ -391,42 +383,33 @@
         
         .p-card-val { font-size: 1.25rem; font-weight: 800; color: var(--text-main); line-height: 1.1; margin-bottom: 4px; }
         .p-card-detail { font-size: 0.65rem; color: var(--text-sub); font-weight: 500; display: flex; align-items: center; gap: 4px; }
-        
         .time-est { font-weight: 700; opacity: 0.8; }
 
-        /* Tracker/Adjust Input specific */
         .tracker-input {
-            width: 100%; padding: 4px; /* Reduced padding */
-            border: 2px solid var(--border); border-radius: 8px;
-            text-align: center; font-weight: 700; font-family: monospace; 
-            font-size: 0.8rem; /* Smaller Font */
+            width: 100%; padding: 4px; border: 2px solid var(--border); border-radius: 8px;
+            text-align: center; font-weight: 700; font-family: monospace; font-size: 0.8rem;
             background: var(--bg-card); color: var(--text-main); margin-top: 6px;
             -moz-appearance: textfield; 
         }
         .tracker-input:focus { border-color: var(--brand); outline: none; }
         .tracker-input::-webkit-outer-spin-button, .tracker-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        /* Adjust Tab Controls */
         .adj-controls { 
             display: flex; align-items: center; justify-content: space-between; 
-            background: var(--bg-card); border-radius: 8px; padding: 1px; /* Tighter padding */
+            background: var(--bg-card); border-radius: 8px; padding: 1px; 
             border: 1px solid var(--border); margin-top: 6px; 
         }
         .adj-btn { 
-            width: 24px; height: 24px; /* Smaller button size */
-            display: flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
             border: none; background: transparent; cursor: pointer; color: var(--text-sub);
         }
-        .adj-btn span { font-size: 18px; } /* Smaller Icon */
-        
+        .adj-btn span { font-size: 18px; }
         .adj-btn:active { color: var(--brand); background: var(--bg-hover); border-radius: 6px; }
         .adj-input { 
             width: 36px; text-align: center; border: none; background: transparent; font-weight: 700; font-family: monospace; 
-            font-size: 0.8rem; /* Smaller Font */
-            color: var(--text-main); outline: none; -moz-appearance: textfield; padding: 0;
+            font-size: 0.8rem; color: var(--text-main); outline: none; -moz-appearance: textfield; padding: 0;
         }
 
-        /* VIEW TOGGLE */
         .view-toggle { display: flex; justify-content: center; margin-bottom: 12px; }
         .toggle-bg { background: var(--bg-hover); border-radius: 100px; padding: 3px; display: flex; }
         .toggle-opt { 
@@ -435,7 +418,6 @@
         }
         .toggle-opt.active { background: var(--bg-card); color: var(--brand); box-shadow: none; border: 1px solid var(--border); }
 
-        /* COLORS SETTINGS */
         .color-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; position: relative; }
         .color-dot:hover { transform: scale(1.1); }
@@ -468,7 +450,6 @@
         [data-theme="dark"] .confirm-btn.danger { background: rgba(211, 47, 47, 0.2); color: #ef5350; }
         .confirm-btn:hover { transform: translateY(-1px); filter: brightness(0.95); }
 
-        /* HEADER & SECTION TITLES */
         .page-heading {
             font-size: 0.9rem; font-weight: 700; color: var(--text-sub); 
             text-transform: uppercase; margin-bottom: 12px; display: block;
@@ -481,29 +462,13 @@
         }
         .reset-btn-full:hover { background: rgba(212, 76, 71, 0.2); }
 
-        /* RESIZE HANDLE - iPAD STYLE */
         .resize-handle {
-            position: absolute;
-            bottom: 3px;
-            right: 3px;
-            width: 24px;
-            height: 24px;
-            cursor: nwse-resize;
-            z-index: 50;
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
-            opacity: 0.4;
-            transition: opacity 0.2s;
+            position: absolute; bottom: 3px; right: 3px; width: 24px; height: 24px;
+            cursor: nwse-resize; z-index: 50; display: flex; align-items: flex-end; justify-content: flex-end;
+            opacity: 0.4; transition: opacity 0.2s;
         }
         .resize-handle:hover { opacity: 0.8; }
-        .resize-icon {
-            width: 100%; height: 100%;
-            fill: none;
-            stroke: var(--text-sub);
-            stroke-width: 4;
-            stroke-linecap: round;
-        }
+        .resize-icon { width: 100%; height: 100%; fill: none; stroke: var(--text-sub); stroke-width: 4; stroke-linecap: round; }
     </style>
 </head>
 <body id="body">
@@ -514,7 +479,7 @@
             <div class="app-icon"><span class="material-symbols-rounded">moon_stars</span></div>
             <h1 class="title">QazaCalc</h1>
         </div>
-        </div>
+    </div>
 
     <div id="page-profile" class="page-content active">
         <span class="page-heading">Your Profile</span>
@@ -613,7 +578,7 @@
 
             <div class="setting-block">
                 <div class="field-label" style="margin-bottom:8px;">App Theme</div>
-                <div class="gender-container layout-selector" style="margin-bottom:0;">
+                <div class="gender-container option-selector" style="margin-bottom:0;">
                     <div class="gender-btn active" id="themeAuto" onclick="selectTheme('auto')">Auto</div>
                     <div class="gender-btn" id="themeLight" onclick="selectTheme('light')">Light</div>
                     <div class="gender-btn" id="themeDark" onclick="selectTheme('dark')">Dark</div>
@@ -622,7 +587,7 @@
 
             <div class="setting-block">
                 <div class="field-label" style="margin-bottom:8px;">Window Layout</div>
-                <div class="gender-container layout-selector" style="margin-bottom:0;">
+                <div class="gender-container option-selector" style="margin-bottom:0;">
                     <div class="gender-btn active" id="btnPhone" onclick="setLayout('phone')">
                         <span class="material-symbols-rounded">smartphone</span> Phone
                     </div>
@@ -692,13 +657,13 @@
         end: null, 
         totalDays: null, 
         viewMode: 'prayers',
-        heroSlide: 0, // 0 = Days, 1 = Completion
+        heroSlide: 0,
         deductions: { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0, Witr: 0 },
         paces: { Fajr: 1, Dhuhr: 1, Asr: 1, Maghrib: 1, Isha: 1, Witr: 1 },
         minsPer2Rakats: 5,
         layout: 'phone',
         lastPage: 'profile',
-        themeMode: 'auto' // auto, light, dark
+        themeMode: 'auto'
     };
 
     let pickers = {};
@@ -748,7 +713,6 @@
                 root.style.setProperty('--brand', `var(${c.var})`);
                 document.querySelectorAll('.color-dot').forEach(x => x.classList.remove('selected'));
                 dot.classList.add('selected');
-                
                 localStorage.setItem('qazaColorIndex', index);
                 refreshBrandTheme();
             };
@@ -848,7 +812,6 @@
         const btnPhone = document.getElementById('btnPhone');
         const btnPC = document.getElementById('btnPC');
         
-        // Remove active class from both
         btnPhone.classList.remove('active');
         btnPC.classList.remove('active');
 

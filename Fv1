@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Qaza Notion UI</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css"/>
+
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            --bg-body: #F5F5F5;
+            --bg-card: #FFFFFF;
+            --bg-hover: #F7F6F3;
+            --text-main: #37352F;
+            --text-sub: #787774;
+            --border: #E0E0E0;
+            
+            /* Brand */
+            --brand: #448361; 
+            --brand-bg: #EDF3EC; 
+            
+            /* Notion Colors (Light Mode) */
+            --notion-green: #448361;
+            --notion-red: #D44C47;
+            --notion-yellow: #CB912F;
+            --notion-orange: #D9730D;
+            --notion-blue: #337EA9;
+            --notion-purple: #9065B0;
+            
+            /* FLAT DESIGN */
+            --radius: 16px;
+            --card-border: 3px solid var(--brand);
+
+            /* Litepicker Overrides */
+            --litepicker-container-months-color-bg: #fff;
+            --litepicker-container-months-box-shadow-color: #ddd;
+            --litepicker-footer-color-bg: #fff;
+            --litepicker-day-color: #37352F;
+            --litepicker-is-selected-color-bg: #448361;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #191919;
+            --bg-card: #191919;
+            --bg-hover: #252525;
+            --text-main: #FFFFFF;
+            --text-sub: #A0A0A0;
+            --border: #333333;
+            
+            --notion-green: #529E72;
+            --notion-red: #DF5452;
+            --notion-yellow: #CA9849;
+            --notion-orange: #C77D48;
+            --notion-blue: #5E87C9;
+            --notion-purple: #9D68D3;
+
+            --litepicker-container-months-color-bg: #191919;
+            --litepicker-container-months-box-shadow-color: #000;
+            --litepicker-footer-color-bg: #191919;
+            --litepicker-day-color: #fff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; 
+            margin: 0; padding: 0; 
+            background: transparent;
+            overflow: hidden; 
+        }
+
+        /* --- CARD & LAYOUT LOGIC --- */
+        .card { 
+            display: flex; flex-direction: column; 
+            background: var(--bg-card); 
+            border-radius: var(--radius); 
+            border: var(--card-border); 
+            padding: 20px; 
+            padding-bottom: 90px; 
+            position: relative; overflow: hidden;
+            flex-shrink: 0;
+            
+            /* Default: Fill Available Space (removes empty space) */
+            width: 100%;
+            height: 100%;
+        }
+
+        /* PHONE MODE LAYOUT */
+        .card.layout-phone {
+            max-width: 400px; /* Readability width */
+            max-height: 800px; /* Requested Phone Max */
+        }
+
+        /* PC MODE LAYOUT (Default) */
+        .card.layout-pc {
+            max-width: 800px; /* Wider for PC */
+            max-height: 500px; /* Requested PC Max */
+        }
+
+        /* HEADER */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .title-group { display: flex; align-items: center; gap: 8px; }
+        .app-icon { color: var(--brand); background: var(--brand-bg); padding: 6px; border-radius: 8px; display: flex; } 
+        .app-icon span { font-size: 20px; }
+        .title { font-size: 1.1rem; color: var(--text-main); font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+        
+        .controls { display: flex; gap: 4px; }
+        .btn-icon {
+            background: transparent; border: none; cursor: pointer; color: var(--text-main);
+            width: 32px; height: 32px; border-radius: 6px; transition: background 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-icon:hover { background: var(--bg-hover); }
+        .btn-icon span { font-size: 20px; }
+
+        /* PAGES LOGIC */
+        .page-content {
+            display: none;
+            overflow-y: auto;
+            height: 100%;
+            padding-right: 4px; 
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .page-content::-webkit-scrollbar { display: none; width: 0; background: transparent; }
+        
+        .page-content.active {
+            display: block;
+            animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateX(15px); } 
+            to { opacity: 1; transform: translateX(0); } 
+        }
+
+        /* SETTINGS PAGE SPECIFIC */
+        .settings-container {
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .setting-block {
+            padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+            background: var(--bg-hover);
+        }
+
+        /* BOTTOM PILL NAVIGATION */
+        .bottom-nav-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .pill-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 5px;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px 0;
+            border-radius: 100px;
+            color: var(--text-sub);
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item:hover { background: var(--bg-hover); }
+        
+        .nav-item.active {
+            color: var(--bg-card);
+            background: var(--brand);
+        }
+        
+        .nav-item .material-symbols-rounded { font-size: 20px; margin-bottom: 2px; }
+        .nav-item span.label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* GENDER & OPTION TOGGLES */
+        .gender-container { display: flex; gap: 8px; margin-bottom: 16px; } 
+        .gender-btn {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-sub); font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .gender-btn.male.active { background: rgba(33, 150, 243, 0.1); border-color: #2196F3; color: #2196F3; }
+        .gender-btn.female.active { background: rgba(233, 30, 99, 0.1); border-color: #E91E63; color: #E91E63; }
+
+        /* HIGHLIGHT SELECTED OPTION WITH BRAND COLOR */
+        .option-selector .gender-btn.active {
+            background: var(--brand); 
+            border-color: var(--brand); 
+            color: var(--bg-card); 
+        }
+        .option-selector .gender-btn.active .material-symbols-rounded {
+            color: var(--bg-card);
+        }
+
+        /* HERO COUNTER */
+        .counter-hero {
+            background: rgba(255, 105, 180, 0.1); border-radius: 14px; padding: 12px;
+            display: none; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; animation: slideIn 0.3s ease;
+        }
+        .counter-hero.visible { display: flex; }
+        
+        .c-btn {
+            width: 36px; height: 36px; border-radius: 50%; background: var(--bg-card);
+            border: 1px solid var(--border);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: var(--text-main); transition: transform 0.1s;
+        }
+        .c-btn:active { transform: scale(0.9); }
+        .c-input { 
+            font-size: 1.5rem; font-weight: 800; color: var(--text-main);
+            background: transparent; border: none; text-align: center; width: 60px; 
+            outline: none; padding: 0; line-height: 1; margin: 0; font-family: inherit; -moz-appearance: textfield;
+        }
+        .c-label { font-size: 0.7rem; font-weight: 600; color: var(--text-sub); opacity: 0.8; margin-top: 2px; }
+
+        /* INPUTS */
+        .input-card {
+            background: var(--bg-hover); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; 
+            border: 1px solid transparent; transition: 0.2s; position: relative;
+        }
+        .input-card:focus-within { background: var(--bg-card); border-color: var(--brand); }
+        .input-card.valid { border-color: var(--brand); background: var(--brand-bg); }
+        .input-card.invalid { border-color: var(--notion-red); background: rgba(212, 76, 71, 0.05); }
+
+        .label-row { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+        .field-label { font-size: 0.7rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+        .label-icon { font-size: 16px; color: var(--brand); } 
+        
+        .date-wrapper { position: relative; display: flex; align-items: center; margin-top: 2px; }
+        .date-input { width: 100%; background: transparent; border: none; font-size: 0.95rem; font-weight: 700; color: var(--text-main); outline: none; padding-right: 32px; }
+        .date-input::placeholder { font-weight: 500; opacity: 0.3; color: var(--text-sub); text-transform: uppercase; }
+
+        .calendar-icon-btn {
+            position: absolute; right: 0; background: none; border: none; cursor: pointer;
+            color: var(--text-sub); padding: 4px; display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; transition: 0.2s;
+        }
+        .calendar-icon-btn:hover { background: rgba(0,0,0,0.05); color: var(--text-main); }
+        .calendar-icon-btn span { font-size: 18px; }
+        .hijri-tag { font-size: 0.65rem; color: var(--brand); font-weight: 600; opacity: 0.8; }
+
+        /* STATS HERO - FIXED HEIGHT */
+        .hero-section { 
+            display: flex; align-items: center; justify-content: space-between; 
+            margin-bottom: 16px; padding: 16px; 
+            background: var(--brand-bg); 
+            border: 2px solid var(--brand); 
+            border-radius: 16px; 
+            color: var(--brand);
+            height: 130px;
+        }
+        .hero-content { text-align: center; flex: 1; transition: opacity 0.2s; }
+        .hero-val { font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1.2; letter-spacing: -0.5px; } 
+        .hero-lbl { font-size: 0.75rem; font-weight: 700; color: var(--brand); margin-top: 6px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .hero-arrow {
+            background: rgba(0,0,0,0.06); border: none; cursor: pointer; color: var(--text-main);
+            width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; 
+        }
+        [data-theme="dark"] .hero-arrow { background: rgba(255,255,255,0.1); color: var(--text-main); }
+        .hero-arrow:hover { background: var(--bg-card); transform: scale(1.1); }
+        .hero-arrow span { font-size: 20px; }
+
+        /* PRAYER GRID */
+        .prayer-grid { 
+            display: grid; gap: 8px; padding-bottom: 20px; transition: grid-template-columns 0.3s ease;
+        }
+        
+        /* PHONE (2 Cols) */
+        .card.layout-phone .prayer-grid { grid-template-columns: 1fr 1fr; }
+        
+        /* PC (3 Cols) - DEFAULT */
+        .card.layout-pc .prayer-grid { grid-template-columns: 1fr 1fr 1fr; }
+        
+        .p-card { 
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 10px; border-radius: 12px;
+            transition: transform 0.2s; position: relative;
+            border: 1px solid transparent;
+            height: 100%; min-height: 125px; 
+        }
+        .p-card:hover { transform: scale(1.02); }
+
+        .p-card.p-fajr { background: rgba(68, 131, 97, 0.08); border-color: rgba(68, 131, 97, 0.15); color: var(--notion-green); }
+        .p-card.p-dhuhr { background: rgba(203, 145, 47, 0.08); border-color: rgba(203, 145, 47, 0.15); color: var(--notion-yellow); }
+        .p-card.p-asr { background: rgba(217, 115, 13, 0.08); border-color: rgba(217, 115, 13, 0.15); color: var(--notion-orange); }
+        .p-card.p-maghrib { background: rgba(212, 76, 71, 0.08); border-color: rgba(212, 76, 71, 0.15); color: var(--notion-red); }
+        .p-card.p-isha { background: rgba(51, 126, 169, 0.08); border-color: rgba(51, 126, 169, 0.15); color: var(--notion-blue); }
+        .p-card.p-witr { background: rgba(144, 101, 176, 0.08); border-color: rgba(144, 101, 176, 0.15); color: var(--notion-purple); }
+
+        .p-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .p-card-icon { font-size: 18px; }
+        .p-card-name { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; }
+        .p-card-val { font-size: 1.25rem; font-weight: 800; color: var(--text-main); line-height: 1.1; margin-bottom: 4px; }
+        .p-card-detail { font-size: 0.65rem; color: var(--text-sub); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+        .time-est { font-weight: 700; opacity: 0.8; }
+
+        .tracker-input {
+            width: 100%; padding: 4px; border: 2px solid var(--border); border-radius: 8px;
+            text-align: center; font-weight: 700; font-family: monospace; font-size: 0.8rem;
+            background: var(--bg-card); color: var(--text-main); margin-top: 6px; -moz-appearance: textfield; 
+        }
+        .tracker-input:focus { border-color: var(--brand); outline: none; }
+
+        .adj-controls { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: var(--bg-card); border-radius: 8px; padding: 1px; 
+            border: 1px solid var(--border); margin-top: 6px; 
+        }
+        .adj-btn { 
+            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+            border: none; background: transparent; cursor: pointer; color: var(--text-sub);
+        }
+        .adj-btn span { font-size: 18px; }
+        .adj-btn:active { color: var(--brand); background: var(--bg-hover); border-radius: 6px; }
+        .adj-input { 
+            width: 36px; text-align: center; border: none; background: transparent; font-weight: 700; font-family: monospace; 
+            font-size: 0.8rem; color: var(--text-main); outline: none; -moz-appearance: textfield; padding: 0;
+        }
+
+        .view-toggle { display: flex; justify-content: center; margin-bottom: 12px; }
+        .toggle-bg { background: var(--bg-hover); border-radius: 100px; padding: 3px; display: flex; }
+        .toggle-opt { 
+            padding: 5px 12px; border-radius: 100px; font-size: 0.7rem; font-weight: 700; 
+            color: var(--text-sub); cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .toggle-opt.active { background: var(--bg-card); color: var(--brand); border: 1px solid var(--border); }
+
+        .color-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; position: relative; }
+        .color-dot:hover { transform: scale(1.1); }
+        .color-dot.selected { box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--brand); animation: pulse 0.2s ease; }
+        @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.15);} 100%{transform:scale(1);} }
+
+        /* CONFIRM MODAL */
+        .confirm-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+            border-radius: var(--radius);
+        }
+        .confirm-modal.active { opacity: 1; pointer-events: auto; }
+        .confirm-box {
+            background: var(--bg-card); padding: 24px; border-radius: 20px;
+            border: 2px solid var(--border); text-align: center; width: 240px;
+            transform: scale(0.9); transition: transform 0.2s;
+        }
+        .confirm-modal.active .confirm-box { transform: scale(1); }
+        .confirm-box p { font-weight: 700; margin-bottom: 20px; color: var(--text-main); font-size: 1rem; }
+        .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+        .confirm-btn {
+            padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; 
+            font-weight: 700; font-size: 0.85rem; transition: 0.2s;
+        }
+        .confirm-btn.cancel { background: var(--bg-hover); color: var(--text-main); }
+        .confirm-btn.danger { background: #ffebee; color: #d32f2f; }
+        [data-theme="dark"] .confirm-btn.danger { background: rgba(211, 47, 47, 0.2); color: #ef5350; }
+        .confirm-btn:hover { transform: translateY(-1px); filter: brightness(0.95); }
+
+        .page-heading {
+            font-size: 0.9rem; font-weight: 700; color: var(--text-sub); 
+            text-transform: uppercase; margin-bottom: 12px; display: block;
+        }
+        
+        .reset-btn-full {
+            width: 100%; padding: 12px; border: none; background: rgba(212, 76, 71, 0.1); color: var(--notion-red);
+            border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .reset-btn-full:hover { background: rgba(212, 76, 71, 0.2); }
+
+        /* RESIZE HANDLE - 2 Axis */
+        .resize-handle {
+            position: absolute; bottom: 0; right: 0; width: 30px; height: 30px;
+            cursor: nwse-resize; z-index: 50; display: flex; align-items: flex-end; justify-content: flex-end;
+            opacity: 0.4; transition: opacity 0.2s; padding: 4px;
+        }
+        .resize-handle:hover { opacity: 0.9; }
+        .resize-icon { width: 100%; height: 100%; fill: none; stroke: var(--text-sub); stroke-width: 3; stroke-linecap: round; }
+    </style>
+</head>
+<body id="body">
+
+<div class="card layout-pc" id="mainCard">
+    <div class="header">
+        <div class="title-group">
+            <div class="app-icon"><span class="material-symbols-rounded">moon_stars</span></div>
+            <h1 class="title">QazaCalc</h1>
+        </div>
+        <div class="controls">
+            <button class="btn-icon" onclick="toggleTheme()" title="Theme"><span class="material-symbols-rounded" id="themeIcon">dark_mode</span></button>
+        </div>
+    </div>
+
+    <div id="page-profile" class="page-content active">
+        <span class="page-heading">Your Profile</span>
+        
+        <div class="gender-container">
+            <div class="gender-btn male active" id="btnMale" onclick="setGender('men')">
+                <span class="material-symbols-rounded">man</span> Male
+            </div>
+            <div class="gender-btn female" id="btnFemale" onclick="setGender('women')">
+                <span class="material-symbols-rounded">woman</span> Female
+            </div>
+        </div>
+
+        <div class="counter-hero" id="periodBox">
+            <button class="c-btn" onclick="updateMainCounter(-1)">
+                <span class="material-symbols-rounded">remove</span>
+            </button>
+            <div class="c-display">
+                <input type="number" id="periodInput" class="c-input" value="7" oninput="calculate()">
+                <div class="c-label">Avg Period Days</div>
+            </div>
+            <button class="c-btn" onclick="updateMainCounter(1)">
+                <span class="material-symbols-rounded">add</span>
+            </button>
+        </div>
+
+        <div class="input-card" id="cardBirth">
+            <div class="label-row">
+                <span class="field-label"><span class="material-symbols-rounded label-icon">child_care</span> Birth Date</span>
+                <span class="hijri-tag" id="hBirth">--</span>
+            </div>
+            <div class="date-wrapper">
+                <input type="text" id="birthDate" class="date-input" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric">
+                <button class="calendar-icon-btn" id="btnBirth">
+                    <span class="material-symbols-rounded">calendar_today</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="input-card" id="cardPuberty">
+            <div class="label-row">
+                <span class="field-label"><span class="material-symbols-rounded label-icon">accessibility_new</span> Puberty Date</span>
+                <span class="hijri-tag" id="hPuberty">--</span>
+            </div>
+            <div class="date-wrapper">
+                <input type="text" id="pubertyDate" class="date-input" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric">
+                <button class="calendar-icon-btn" id="btnPuberty">
+                    <span class="material-symbols-rounded">calendar_today</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="input-card" id="cardEnd">
+            <div class="label-row">
+                <span class="field-label"><span class="material-symbols-rounded label-icon">today</span> Current Date</span>
+                <span class="hijri-tag" id="hEnd">--</span>
+            </div>
+            <div class="date-wrapper">
+                <input type="text" id="endDate" class="date-input" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric">
+                <button class="calendar-icon-btn" id="btnEnd">
+                    <span class="material-symbols-rounded">calendar_today</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-progress" class="page-content">
+        <div class="hero-section">
+            <button class="hero-arrow" onclick="switchHero(-1)"><span class="material-symbols-rounded">chevron_left</span></button>
+            <div class="hero-content">
+                <div class="hero-val" id="heroVal">0</div>
+                <div class="hero-lbl" id="heroLbl">Days Prayer Pending</div>
+            </div>
+            <button class="hero-arrow" onclick="switchHero(1)"><span class="material-symbols-rounded">chevron_right</span></button>
+        </div>
+
+        <div class="view-toggle">
+            <div class="toggle-bg">
+                <div class="toggle-opt active" id="vPrayers" onclick="toggleView('prayers')">Prayers</div>
+                <div class="toggle-opt" id="vTracker" onclick="toggleView('tracker')">Tracker</div>
+                <div class="toggle-opt" id="vAdjust" onclick="toggleView('adjust')">Adjust</div>
+            </div>
+        </div>
+
+        <div class="prayer-grid" id="prayerGrid"></div>
+    </div>
+
+    <div id="page-settings" class="page-content">
+        <span class="page-heading">App Settings</span>
+        
+        <div class="settings-container">
+            <div class="setting-block">
+                <div class="field-label" style="margin-bottom:8px;">Accent Color</div>
+                <div class="color-grid" id="colorGrid"></div>
+            </div>
+
+            <div class="setting-block">
+                <div class="field-label" style="margin-bottom:8px;">App Theme</div>
+                <div class="gender-container option-selector" style="margin-bottom:0;">
+                    <div class="gender-btn active" id="themeAuto" onclick="selectTheme('auto')">Auto</div>
+                    <div class="gender-btn" id="themeLight" onclick="selectTheme('light')">Light</div>
+                    <div class="gender-btn" id="themeDark" onclick="selectTheme('dark')">Dark</div>
+                </div>
+            </div>
+
+            <div class="setting-block">
+                <div class="field-label" style="margin-bottom:8px;">Window Layout</div>
+                <div class="gender-container option-selector" style="margin-bottom:0;">
+                    <div class="gender-btn" id="btnPhone" onclick="setLayout('phone')">
+                        <span class="material-symbols-rounded">smartphone</span> Phone
+                    </div>
+                    <div class="gender-btn active" id="btnPC" onclick="setLayout('pc')">
+                        <span class="material-symbols-rounded">desktop_windows</span> Desktop
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-block">
+                <div class="field-label" style="margin-bottom:8px;">Calculation Method</div>
+                <div style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-bottom:8px;">Avg. Time per 2 Rakats</div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <input type="text" inputmode="numeric" id="timePer2Rakat" class="tracker-input" style="width:60px; margin-top:0;" value="5" oninput="updateTimeSetting(this.value)">
+                    <span style="font-size:0.8rem; color:var(--text-sub);">minutes</span>
+                </div>
+            </div>
+
+            <button class="reset-btn-full" onclick="resetApp()">
+                <span class="material-symbols-rounded">restart_alt</span> Reset All Data
+            </button>
+        </div>
+    </div>
+
+    <div class="bottom-nav-container">
+        <div class="pill-nav">
+            <button class="nav-item active" onclick="navTo('profile')" id="nav-profile">
+                <span class="material-symbols-rounded">person</span>
+                <span class="label">Profile</span>
+            </button>
+            <button class="nav-item" onclick="navTo('progress')" id="nav-progress">
+                <span class="material-symbols-rounded">insights</span>
+                <span class="label">Progress</span>
+            </button>
+            <button class="nav-item" onclick="navTo('settings')" id="nav-settings">
+                <span class="material-symbols-rounded">settings</span>
+                <span class="label">Settings</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-box">
+            <p>Delete all saved data?</p>
+            <div class="confirm-actions">
+                <button class="confirm-btn cancel" onclick="closeConfirm()">Cancel</button>
+                <button class="confirm-btn danger" onclick="performReset()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="resize-handle" id="resizeHandle">
+        <svg class="resize-icon" viewBox="0 0 24 24">
+            <path d="M 16 22 A 6 6 0 0 0 22 16 M 12 22 A 10 10 0 0 0 22 12" />
+        </svg>
+    </div>
+
+</div>
+
+<script>
+    // --- VARIABLES ---
+    let state = { 
+        gender: 'men',
+        periodDays: 7,
+        birth: null, 
+        puberty: null, 
+        end: null, 
+        totalDays: null, 
+        viewMode: 'prayers',
+        heroSlide: 0,
+        deductions: { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0, Witr: 0 },
+        paces: { Fajr: 1, Dhuhr: 1, Asr: 1, Maghrib: 1, Isha: 1, Witr: 1 },
+        minsPer2Rakats: 5,
+        layout: 'pc', // Default set to Desktop (PC)
+        lastPage: 'profile',
+        themeMode: 'auto'
+    };
+
+    let pickers = {};
+    const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Witr'];
+    const root = document.documentElement;
+    const pageOrder = ['profile', 'progress', 'settings']; 
+
+    const prayerData = {
+        Fajr: { r: 2, icon: 'wb_twilight', class: 'p-fajr' },
+        Dhuhr: { r: 4, icon: 'light_mode', class: 'p-dhuhr' },
+        Asr: { r: 4, icon: 'sunny', class: 'p-asr' },
+        Maghrib: { r: 3, icon: 'wb_twilight', class: 'p-maghrib' },
+        Isha: { r: 4, icon: 'bedtime', class: 'p-isha' },
+        Witr: { r: 3, icon: 'nightlight', class: 'p-witr' }
+    };
+
+    // Notion Colors
+    const notionColors = [
+        { var: '--notion-gray',   bgLight: '#F1F1EF', bgDark: '#252525' },
+        { var: '--notion-brown',  bgLight: '#F4EEEE', bgDark: '#2F2723' },
+        { var: '--notion-orange', bgLight: '#FBF3DB', bgDark: '#392B1E' },
+        { var: '--notion-yellow', bgLight: '#FDF5D8', bgDark: '#392E1E' },
+        { var: '--notion-green',  bgLight: '#EDF3EC', bgDark: '#2D3631' },
+        { var: '--notion-blue',   bgLight: '#E6F3F7', bgDark: '#28343E' },
+        { var: '--notion-purple', bgLight: '#F6F3F9', bgDark: '#31283E' },
+        { var: '--notion-pink',   bgLight: '#F9F2F5', bgDark: '#372832' },
+        { var: '--notion-red',    bgLight: '#FDEBEC', bgDark: '#3C292A' }
+    ];
+
+    // --- INIT ---
+    window.addEventListener('DOMContentLoaded', () => {
+        const today = new Date();
+        state.end = today.toISOString().split('T')[0];
+        
+        loadData(); 
+        
+        initPicker('birthDate', 'btnBirth', 'birth', 'cardBirth', true);
+        initPicker('pubertyDate', 'btnPuberty', 'puberty', 'cardPuberty');
+        initPicker('endDate', 'btnEnd', 'end', 'cardEnd');
+
+        const cGrid = document.getElementById('colorGrid');
+        notionColors.forEach((c, index) => {
+            const dot = document.createElement('div');
+            dot.className = 'color-dot'; dot.style.backgroundColor = `var(${c.var})`;
+            dot.dataset.index = index; 
+            dot.onclick = () => {
+                root.style.setProperty('--brand', `var(${c.var})`);
+                document.querySelectorAll('.color-dot').forEach(x => x.classList.remove('selected'));
+                dot.classList.add('selected');
+                localStorage.setItem('qazaColorIndex', index);
+                refreshBrandTheme();
+            };
+            cGrid.appendChild(dot);
+        });
+
+        selectTheme(state.themeMode || 'auto', false);
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if(state.themeMode === 'auto') {
+                applyTheme(e.matches);
+            }
+        });
+
+        // Restore Color
+        const savedIndex = localStorage.getItem('qazaColorIndex');
+        if(savedIndex !== null) {
+            const idx = parseInt(savedIndex);
+            if(notionColors[idx]) {
+                const c = notionColors[idx];
+                root.style.setProperty('--brand', `var(${c.var})`);
+                const dots = document.querySelectorAll('.color-dot');
+                if(dots[idx]) dots[idx].classList.add('selected');
+            }
+        } else {
+            const dots = document.querySelectorAll('.color-dot');
+            if(dots[4]) dots[4].classList.add('selected');
+        }
+        
+        refreshBrandTheme();
+        applyStateToUI();
+        calculate();
+        
+        const savedPage = localStorage.getItem('qazaLastPage') || 'profile';
+        navTo(savedPage);
+
+        initResize();
+        initSwipe();
+    });
+
+    // --- NAVIGATION LOGIC ---
+    function navTo(pageId) {
+        document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        const target = document.getElementById(`page-${pageId}`);
+        if(target) target.classList.add('active');
+        
+        const navBtn = document.getElementById(`nav-${pageId}`);
+        if(navBtn) navBtn.classList.add('active');
+
+        state.lastPage = pageId;
+        localStorage.setItem('qazaLastPage', pageId);
+    }
+
+    // --- SWIPE LOGIC ---
+    function initSwipe() {
+        const card = document.getElementById('mainCard');
+        let startX = 0;
+        let startY = 0;
+
+        card.addEventListener('touchstart', e => {
+            startX = e.changedTouches[0].screenX;
+            startY = e.changedTouches[0].screenY;
+        }, {passive: true});
+
+        card.addEventListener('touchend', e => {
+            const endX = e.changedTouches[0].screenX;
+            const endY = e.changedTouches[0].screenY;
+            
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > 50) { 
+                    const currentIndex = pageOrder.indexOf(state.lastPage);
+                    if (diffX > 0) {
+                        if (currentIndex < pageOrder.length - 1) {
+                            navTo(pageOrder[currentIndex + 1]);
+                        }
+                    } else {
+                        if (currentIndex > 0) {
+                            navTo(pageOrder[currentIndex - 1]);
+                        }
+                    }
+                }
+            }
+        }, {passive: true});
+    }
+
+    // --- LAYOUT LOGIC ---
+    function setLayout(mode) {
+        state.layout = mode;
+        const card = document.getElementById('mainCard');
+        const btnPhone = document.getElementById('btnPhone');
+        const btnPC = document.getElementById('btnPC');
+        
+        btnPhone.classList.remove('active');
+        btnPC.classList.remove('active');
+        
+        card.classList.remove('layout-pc', 'layout-phone');
+        // Reset manual style overrides
+        card.style.width = '100%';
+        card.style.height = '100%';
+
+        if (mode === 'pc') {
+            card.classList.add('layout-pc');
+            btnPC.classList.add('active');
+        } else {
+            card.classList.add('layout-phone');
+            btnPhone.classList.add('active');
+        }
+        saveData();
+    }
+
+    // --- RESIZE LOGIC (2-WAY) ---
+    function initResize() {
+        const card = document.getElementById('mainCard');
+        const handle = document.getElementById('resizeHandle');
+        let isResizing = false;
+        let startWidth, startHeight, startX, startY;
+
+        function startResize(e) {
+            isResizing = true;
+            startWidth = card.offsetWidth;
+            startHeight = card.offsetHeight;
+            
+            if(e.type === 'touchstart') {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            } else {
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+            e.preventDefault();
+        }
+
+        function resize(e) {
+            if (!isResizing) return;
+            let clientX, clientY;
+            if(e.type === 'touchmove') {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            const newWidth = startWidth + (clientX - startX);
+            const newHeight = startHeight + (clientY - startY);
+            
+            card.style.width = newWidth + 'px';
+            card.style.height = newHeight + 'px';
+            
+            // Remove sizing limits temporarily while resizing for flexibility
+            card.style.maxWidth = 'none';
+            card.style.maxHeight = 'none';
+        }
+
+        function stopResize() { isResizing = false; }
+
+        handle.addEventListener('mousedown', startResize);
+        window.addEventListener('mousemove', resize);
+        window.addEventListener('mouseup', stopResize);
+        handle.addEventListener('touchstart', startResize);
+        window.addEventListener('touchmove', resize);
+        window.addEventListener('touchend', stopResize);
+    }
+
+    // --- LOCAL STORAGE ---
+    function saveData() {
+        localStorage.setItem('qazaData', JSON.stringify(state));
+    }
+
+    function loadData() {
+        const raw = localStorage.getItem('qazaData');
+        if (raw) {
+            try {
+                const saved = JSON.parse(raw);
+                state = { ...state, ...saved };
+                if(!state.deductions) state.deductions = { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0, Witr: 0 };
+                if(!state.paces) state.paces = { Fajr: 1, Dhuhr: 1, Asr: 1, Maghrib: 1, Isha: 1, Witr: 1 };
+                if(state.heroSlide === undefined) state.heroSlide = 0;
+                if(!state.layout) state.layout = 'pc'; // Default PC
+                if(!state.themeMode) state.themeMode = 'auto';
+            } catch(e) { console.error("Load failed", e); }
+        }
+    }
+
+    function resetApp() {
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeConfirm() {
+        document.getElementById('confirmModal').classList.remove('active');
+    }
+
+    function performReset() {
+        localStorage.removeItem('qazaData');
+        localStorage.removeItem('qazaTimeSetting');
+        
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        
+        state = { 
+            gender: 'men',
+            periodDays: 7,
+            birth: null, 
+            puberty: null, 
+            end: todayStr, 
+            totalDays: null, 
+            viewMode: 'prayers',
+            heroSlide: 0,
+            deductions: { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0, Witr: 0 },
+            paces: { Fajr: 1, Dhuhr: 1, Asr: 1, Maghrib: 1, Isha: 1, Witr: 1 },
+            minsPer2Rakats: 5,
+            layout: 'pc',
+            lastPage: 'profile',
+            themeMode: 'auto'
+        };
+
+        if(pickers['birth']) pickers['birth'].clearSelection();
+        if(pickers['puberty']) pickers['puberty'].clearSelection();
+        if(pickers['end']) pickers['end'].setDate(today);
+
+        document.getElementById('birthDate').value = "";
+        document.getElementById('pubertyDate').value = "";
+        document.getElementById('endDate').value = formatDate(today);
+        
+        applyStateToUI();
+        closeConfirm();
+        calculate();
+        navTo('profile'); 
+    }
+
+    // --- UI HELPERS ---
+    function applyStateToUI() {
+        setGender(state.gender, false);
+        setLayout(state.layout); 
+        document.getElementById('periodInput').value = state.periodDays;
+        document.getElementById('timePer2Rakat').value = state.minsPer2Rakats;
+        toggleView(state.viewMode, false);
+
+        document.getElementById('birthDate').value = state.birth ? formatDateFromIso(state.birth) : '';
+        document.getElementById('pubertyDate').value = state.puberty ? formatDateFromIso(state.puberty) : '';
+        document.getElementById('endDate').value = state.end ? formatDateFromIso(state.end) : '';
+        
+        updateHijri(state.birth, 'hBirth');
+        updateHijri(state.puberty, 'hPuberty');
+        updateHijri(state.end, 'hEnd');
+    }
+
+    // --- DATE LOGIC ---
+    function formatDate(d) {
+        if(!d || isNaN(d)) return "";
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function formatDateFromIso(iso) {
+        if(!iso) return "";
+        const [y, m, d] = iso.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    function formatTime(minutes) {
+        let timeStr = `${Math.round(minutes)}m`;
+        if (minutes >= 60) {
+            const h = Math.floor(minutes / 60);
+            const m = Math.round(minutes % 60);
+            timeStr = `${h}h ${m}m`;
+        }
+        return timeStr;
+    }
+
+    function parseToIso(str) {
+        if (!str || str.length < 10) return null;
+        const [d, m, y] = str.split('/');
+        if (!d || !m || !y) return null;
+        if (parseInt(m) > 12 || parseInt(m) < 1) return null;
+        if (parseInt(d) > 31 || parseInt(d) < 1) return null;
+        if (y.length !== 4) return null;
+        return `${y}-${m}-${d}`;
+    }
+
+    function initPicker(inputId, btnId, stateKey, cardId, autoPuberty = false) {
+        const inputEl = document.getElementById(inputId);
+        const btnEl = document.getElementById(btnId);
+        const cardEl = document.getElementById(cardId);
+        
+        const hiddenInput = document.createElement('input');
+        hiddenInput.style.display = 'none';
+        inputEl.parentNode.appendChild(hiddenInput);
+
+        const picker = new Litepicker({
+            element: hiddenInput,
+            format: 'DD/MM/YYYY',
+            autoApply: true,
+            singleMode: true,
+            dropdowns: { minYear: 1950, maxYear: 2040, months: true, years: true },
+            setup: (picker) => {
+                picker.on('selected', (date) => {
+                    const iso = date.dateInstance.toISOString().split('T')[0];
+                    state[stateKey] = iso;
+                    inputEl.value = formatDate(date.dateInstance);
+                    setValid(cardEl, true);
+                    if(autoPuberty) handleAutoPuberty(date.dateInstance);
+                    let hijriId = inputId === 'birthDate' ? 'hBirth' : (inputId === 'pubertyDate' ? 'hPuberty' : 'hEnd');
+                    updateHijri(iso, hijriId);
+                    calculate();
+                    saveData();
+                });
+            }
+        });
+        pickers[stateKey] = picker;
+
+        if(state[stateKey]) {
+            const parts = state[stateKey].split('-');
+            const d = new Date(parts[0], parts[1]-1, parts[2]);
+            picker.setDate(d);
+            setValid(cardEl, true);
+        }
+
+        btnEl.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (state[stateKey]) {
+                const parts = state[stateKey].split('-');
+                picker.setDate(new Date(parts[0], parts[1]-1, parts[2]));
+            }
+            picker.show();
+        });
+        
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                picker.hide();
+                inputEl.blur();
+            }
+        });
+
+        inputEl.addEventListener('input', (e) => {
+            if (e.inputType && e.inputType.includes('delete')) { setValid(cardEl, null); return; }
+            let val = e.target.value;
+            const digits = val.replace(/\D/g, '');
+            const lastChar = val.slice(-1);
+
+            if (lastChar === '/' && val.length > 1) {
+                const parts = val.slice(0, -1).split('/');
+                const lastSeg = parts[parts.length - 1];
+                if (lastSeg.length === 1 && /^\d$/.test(lastSeg)) {
+                    parts[parts.length - 1] = '0' + lastSeg;
+                    e.target.value = parts.join('/') + '/';
+                }
+            }
+
+            if (digits.length === 1 && parseInt(digits[0]) > 3) { e.target.value = `0${digits[0]}/`; return; }
+            if (digits.length >= 2) {
+                 const day = digits.slice(0, 2);
+                 if (digits.length === 2) { e.target.value = `${day}/`; return; }
+                 if (digits.length >= 3) {
+                     const m1 = parseInt(digits[2]);
+                     if (digits.length === 3 && m1 > 1) { e.target.value = `${day}/0${m1}/`; return; }
+                     if (digits.length >= 4) {
+                         const month = digits.slice(2, 4);
+                         if (digits.length === 4) { e.target.value = `${day}/${month}/`; return; }
+                         const year = digits.slice(4, 8);
+                         e.target.value = `${day}/${month}/${year}`;
+                         
+                         if (digits.length === 8) {
+                             const iso = parseToIso(e.target.value);
+                             if(iso) {
+                                 state[stateKey] = iso;
+                                 setValid(cardEl, true);
+                                 saveData();
+                                 calculate();
+                             }
+                         }
+                     } else { e.target.value = `${day}/${digits[2]}`; }
+                 }
+            }
+        });
+
+        inputEl.addEventListener('blur', (e) => {
+            const rawVal = e.target.value.trim();
+            if (!rawVal) { setValid(cardEl, null); return; }
+            const iso = parseToIso(rawVal);
+            if (iso) {
+                state[stateKey] = iso;
+                const parts = iso.split('-');
+                const d = new Date(parts[0], parts[1]-1, parts[2]);
+                picker.setDate(d);
+                setValid(cardEl, true);
+                if(autoPuberty) handleAutoPuberty(d);
+                let hijriId = inputId === 'birthDate' ? 'hBirth' : (inputId === 'pubertyDate' ? 'hPuberty' : 'hEnd');
+                updateHijri(iso, hijriId);
+                calculate();
+                saveData();
+            } else { setValid(cardEl, false); }
+        });
+    }
+
+    function setValid(el, isValid) {
+        el.classList.remove('valid', 'invalid');
+        if (isValid === true) el.classList.add('valid');
+        if (isValid === false) el.classList.add('invalid');
+    }
+
+    function handleAutoPuberty(birthDate) {
+        const d = new Date(birthDate);
+        d.setDate(d.getDate() + 4252); 
+        const iso = d.toISOString().split('T')[0];
+        state.puberty = iso;
+        document.getElementById('pubertyDate').value = formatDate(d);
+        setValid(document.getElementById('cardPuberty'), true);
+        if(pickers['puberty']) pickers['puberty'].setDate(d);
+        updateHijri(iso, 'hPuberty');
+    }
+
+    const hFmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn', {day:'numeric', month:'short', year:'numeric'});
+    function updateHijri(isoDate, badgeId) {
+        const b = document.getElementById(badgeId);
+        if(!isoDate) { b.innerText = '--'; return; }
+        try { 
+            const parts = isoDate.split('-');
+            const d = new Date(parts[0], parts[1]-1, parts[2]);
+            b.innerText = hFmt.format(d).replace(' AH',''); 
+        } catch(e) { b.innerText='--'; }
+    }
+
+    // --- CALCULATION LOGIC ---
+    function computeTotalDays() {
+        if(!state.puberty || !state.end) return null;
+        let diff = Math.ceil((new Date(state.end) - new Date(state.puberty)) / 86400000);
+        if(diff < 0) diff = 0;
+        if(state.gender === 'women') {
+            const pDays = state.periodDays;
+            const m = diff / 30.44; 
+            diff -= Math.round(m * pDays);
+        }
+        return diff;
+    }
+
+    function calculate() {
+        state.totalDays = computeTotalDays();
+        renderList(state.totalDays);
+    }
+
+    function renderList(baseDays) {
+        const grid = document.getElementById('prayerGrid');
+        grid.innerHTML = '';
+        
+        updateHeroDisplay();
+
+        const effectiveDays = baseDays === null ? 0 : baseDays;
+
+        for (const [key, data] of Object.entries(prayerData)) {
+            const deducted = state.deductions[key];
+            const net = Math.max(0, effectiveDays - deducted);
+            
+            let mainVal = net.toLocaleString();
+            let detailHtml = "";
+            let inputHtml = "";
+            let resValId = `res-val-${key}`;
+            let resDetId = `res-det-${key}`;
+
+            if (state.viewMode === 'prayers') {
+                 const totalRakats = net * data.r;
+                 detailHtml = `Total Rakats: ${totalRakats.toLocaleString()}`;
+            } 
+            else if (state.viewMode === 'tracker') {
+                 const pace = state.paces[key] || 1;
+                 const daysToFinish = Math.ceil(net / pace);
+                 
+                 let dateStr = "Done";
+                 if(effectiveDays > 0 && daysToFinish > 0) {
+                     const fin = new Date();
+                     fin.setDate(fin.getDate() + daysToFinish);
+                     dateStr = fin.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'2-digit'});
+                 }
+                 
+                 mainVal = dateStr;
+                 
+                 const timePerRakat = state.minsPer2Rakats / 2;
+                 const totalMins = (pace * data.r) * timePerRakat;
+                 const timeStr = formatTime(totalMins);
+
+                 detailHtml = `Daily Time: <span class="time-est">${timeStr}</span>`;
+                 
+                 inputHtml = `
+                    <div style="display:flex; align-items:center; gap:4px; font-size:0.75rem; color:var(--text-sub); width:100%;">
+                        <input type="text" inputmode="numeric" class="tracker-input" value="${pace}" 
+                               oninput="updatePace('${key}', this.value)" onclick="event.stopPropagation()">
+                        <span style="white-space:nowrap; margin-top:6px;">/ day</span>
+                    </div>
+                 `;
+            }
+            else if (state.viewMode === 'adjust') {
+                mainVal = deducted.toLocaleString();
+                detailHtml = 'Deducted';
+                inputHtml = `
+                    <div class="adj-controls">
+                        <button class="adj-btn" onclick="adjustDeduct('${key}', -10)"><span class="material-symbols-rounded">remove</span></button>
+                        <input type="number" id="in-${key}" class="adj-input" value="${deducted}" oninput="manualDeductChange('${key}', this.value)" onclick="event.stopPropagation()">
+                        <button class="adj-btn" onclick="adjustDeduct('${key}', 10)"><span class="material-symbols-rounded">add</span></button>
+                    </div>
+                `;
+            }
+
+            const div = document.createElement('div');
+            div.className = `p-card ${data.class}`;
+            div.innerHTML = `
+                <div>
+                    <div class="p-card-header">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="material-symbols-rounded p-card-icon">${data.icon}</span>
+                            <span class="p-card-name">${key} <span style="opacity:0.6; margin-left:2px;">(${data.r})</span></span>
+                        </div>
+                    </div>
+                    <div id="${resValId}" class="p-card-val">${mainVal}</div>
+                    <div id="${resDetId}" class="p-card-detail">${detailHtml}</div>
+                </div>
+                ${inputHtml}
+            `;
+            grid.appendChild(div);
+        }
+    }
+
+    function switchHero(dir) {
+        state.heroSlide = (state.heroSlide + dir + 2) % 2; 
+        updateHeroDisplay();
+        saveData();
+    }
+
+    function updateHeroDisplay() {
+        const heroVal = document.getElementById('heroVal');
+        const heroLbl = document.getElementById('heroLbl');
+
+        if (state.totalDays === null) {
+             heroVal.innerText = "Add Dates";
+             heroLbl.innerText = "To Start";
+             heroVal.style.fontSize = "2rem"; 
+             return;
+        }
+        heroVal.style.fontSize = "2rem";
+
+        if(state.heroSlide === 0) {
+            heroVal.innerText = state.totalDays.toLocaleString();
+            heroLbl.innerText = "Days Prayer Pending"; 
+        } else {
+            let maxDate = new Date();
+            let hasQaza = false;
+            let totalDailyTime = 0;
+            const timePerRakat = state.minsPer2Rakats / 2;
+
+            for (const [key, data] of Object.entries(prayerData)) {
+                const deducted = state.deductions[key];
+                const net = Math.max(0, state.totalDays - deducted);
+                if (net > 0) {
+                    hasQaza = true;
+                    const pace = state.paces[key] || 1;
+                    const rowRakats = pace * data.r;
+                    totalDailyTime += (rowRakats * timePerRakat);
+
+                    const days = Math.ceil(net / pace);
+                    const d = new Date();
+                    d.setDate(d.getDate() + days);
+                    if (d > maxDate) maxDate = d;
+                }
+            }
+
+            if(hasQaza) {
+                const d = maxDate.getDate();
+                const m = maxDate.toLocaleString('default', { month: 'short' });
+                const y = maxDate.getFullYear();
+                
+                let timeStr = `${Math.round(totalDailyTime)} mins`;
+                if (totalDailyTime >= 60) {
+                    const h = Math.floor(totalDailyTime / 60);
+                    const mn = Math.round(totalDailyTime % 60);
+                    timeStr = `${h} hr ${mn > 0 ? mn + ' mins' : ''}`;
+                }
+
+                heroVal.innerText = `${d} ${m} ${y}`;
+                heroLbl.innerHTML = `Estimated Completion<br><span style="color:var(--brand); font-weight:700;">Daily Effort: ~${timeStr}</span>`;
+            } else {
+                heroVal.innerText = "Done";
+                heroLbl.innerText = "All Qaza Completed";
+            }
+        }
+    }
+
+    function updatePace(key, val) {
+        let num = 0;
+        if(val !== "") {
+            num = parseFloat(val);
+            if(isNaN(num)) num = 0;
+        }
+        state.paces[key] = num;
+        saveData(); 
+        updateHeroDisplay();
+
+        if(state.totalDays !== null) {
+            const data = prayerData[key];
+            const deducted = state.deductions[key];
+            const net = Math.max(0, state.totalDays - deducted);
+            
+            const effectivePace = num > 0 ? num : 1;
+            const daysToFinish = Math.ceil(net / effectivePace);
+            
+            let dateStr = "Done";
+            if(net > 0 && num > 0) {
+                const fin = new Date();
+                fin.setDate(fin.getDate() + daysToFinish);
+                dateStr = fin.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'2-digit'});
+            } else if (net > 0 && num === 0) {
+                dateStr = "Never";
+            }
+            
+            const timePerRakat = state.minsPer2Rakats / 2;
+            const totalMins = (num * data.r) * timePerRakat;
+            const timeStr = formatTime(totalMins);
+
+            const dateEl = document.getElementById(`res-val-${key}`);
+            const detailEl = document.getElementById(`res-det-${key}`);
+            
+            if(dateEl) dateEl.innerText = dateStr;
+            if(detailEl) detailEl.innerHTML = `Daily Time: <span class="time-est">${timeStr}</span>`;
+        }
+    }
+
+    function updateMainCounter(delta) {
+        const input = document.getElementById('periodInput');
+        let val = parseInt(input.value) || 0;
+        val = Math.max(0, val + delta);
+        input.value = val;
+        state.periodDays = val;
+        calculate();
+        saveData();
+    }
+
+    function manualDeductChange(key, val) {
+        let v = 0;
+        if(val !== "") {
+            v = parseInt(val);
+            if(isNaN(v)) v = 0;
+        }
+        state.deductions[key] = v;
+        saveData();
+        updateHeroDisplay();
+
+        if (state.viewMode === 'adjust') {
+            const valEl = document.getElementById(`res-val-${key}`);
+            if(valEl) valEl.innerText = v.toLocaleString();
+        } 
+    }
+
+    function adjustDeduct(key, delta) {
+        let val = state.deductions[key] || 0;
+        val = Math.max(0, val + delta);
+        state.deductions[key] = val;
+        
+        const input = document.getElementById(`in-${key}`);
+        if(input) input.value = val;
+        manualDeductChange(key, val.toString());
+    }
+    
+    function updateTimeSetting(val) {
+        const num = parseFloat(val);
+        if(num && num > 0) {
+            state.minsPer2Rakats = num;
+            localStorage.setItem('qazaTimeSetting', num);
+            calculate();
+            saveData();
+        }
+    }
+
+    function toggleView(m, save = true) {
+        state.viewMode = m;
+        document.getElementById('vPrayers').className = m === 'prayers' ? 'toggle-opt active' : 'toggle-opt';
+        document.getElementById('vTracker').className = m === 'tracker' ? 'toggle-opt active' : 'toggle-opt';
+        document.getElementById('vAdjust').className = m === 'adjust' ? 'toggle-opt active' : 'toggle-opt';
+        
+        if (m === 'prayers') {
+            state.heroSlide = 0; 
+        } else if (m === 'tracker') {
+            state.heroSlide = 1; 
+        }
+        
+        calculate();
+        if(save) saveData();
+    }
+
+    function setGender(g, save = true) {
+        state.gender = g;
+        document.getElementById('btnMale').className = g === 'men' ? 'gender-btn male active' : 'gender-btn male';
+        document.getElementById('btnFemale').className = g === 'women' ? 'gender-btn female active' : 'gender-btn female';
+        const pb = document.getElementById('periodBox');
+        if (g === 'women') { pb.classList.add('visible'); } 
+        else { pb.classList.remove('visible'); }
+        calculate();
+        if(save) saveData();
+    }
+
+    // --- THEME LOGIC ---
+    function selectTheme(mode, save = true) {
+        state.themeMode = mode;
+        
+        // UI Updates
+        document.getElementById('themeAuto').classList.toggle('active', mode === 'auto');
+        document.getElementById('themeLight').classList.toggle('active', mode === 'light');
+        document.getElementById('themeDark').classList.toggle('active', mode === 'dark');
+
+        if(mode === 'auto') {
+            const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(isSystemDark);
+        } else if(mode === 'dark') {
+            applyTheme(true);
+        } else {
+            applyTheme(false);
+        }
+
+        if(save) saveData();
+    }
+    
+    function applyTheme(dark) {
+        if(dark) {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').innerText = 'light_mode';
+        } else {
+            document.body.removeAttribute('data-theme');
+            document.getElementById('themeIcon').innerText = 'dark_mode';
+        }
+        refreshBrandTheme();
+    }
+
+    function refreshBrandTheme() {
+        const indexStr = localStorage.getItem('qazaColorIndex');
+        const isDark = document.body.hasAttribute('data-theme');
+        let index = indexStr ? parseInt(indexStr) : 4; 
+        
+        if(notionColors[index]) {
+            const colorObj = notionColors[index];
+            const bg = isDark ? colorObj.bgDark : colorObj.bgLight;
+            root.style.setProperty('--brand-bg', bg);
+        }
+    }
+    
+    function toggleTheme() {
+        const isDark = document.body.hasAttribute('data-theme');
+        if(isDark) selectTheme('light');
+        else selectTheme('dark');
+    }
+</script>
+</body>
+</html>

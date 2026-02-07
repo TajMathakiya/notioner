@@ -21,6 +21,11 @@
             /* Prayer Colors */
             --color-fajr: #448361; --color-sunrise: #9F6B53; --color-dhuhr: #CB912F; 
             --color-asr: #D9730D; --color-maghrib: #D44C47; --color-isha: #337EA9;
+
+            /* Notion Colors (Light) */
+            --notion-gray: #787774; --notion-brown: #9F6B53; --notion-orange: #D9730D;
+            --notion-yellow: #CB912F; --notion-green: #448361; --notion-blue: #337EA9;
+            --notion-purple: #9065B0; --notion-pink: #C14C8A; --notion-red: #D44C47;
         }
 
         /* DARK THEME APPLIED TO ROOT */
@@ -33,6 +38,11 @@
             
             --color-fajr: #529E72; --color-sunrise: #BA856F; --color-dhuhr: #CA9849; 
             --color-asr: #C77D48; --color-maghrib: #DF5452; --color-isha: #5E87C9;
+
+            /* Notion Colors (Dark Mode Restored) */
+            --notion-gray: #9B9A97; --notion-brown: #BA856F; --notion-orange: #C77D48;
+            --notion-yellow: #CA9849; --notion-green: #529E72; --notion-blue: #5E87C9;
+            --notion-purple: #9D68D3; --notion-pink: #D15796; --notion-red: #DF5452;
         }
 
         * { box-sizing: border-box; }
@@ -47,6 +57,8 @@
 
         body { 
             display: flex; justify-content: center; align-items: center; 
+            /* Added padding to prevent border from being cut off on phones */
+            padding: 1.5vmin;
         }
 
         .card { 
@@ -55,7 +67,7 @@
             background: var(--bg-card);
             /* Borders */
             border: 3px solid var(--brand-color);
-            border-radius: 2.5vmin; 
+            border-radius: 3vmin; 
             
             padding: 2vmin; 
             text-align: center; position: relative;
@@ -166,14 +178,21 @@
         }
         .settings-panel.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
         
+        /* Updated Close Button: Bottom Right & Big */
         .btn-close-settings {
-            position: absolute; top: 2vmin; right: 2vmin;
-            width: 6vmin; height: 6vmin;
-            background: transparent; border: none; cursor: pointer;
-            color: var(--text-sub); display: flex; align-items: center; justify-content: center;
-            border-radius: 1vmin; opacity: 0.6; transition: opacity 0.2s;
+            position: absolute; 
+            bottom: 4vmin; right: 4vmin; /* Bottom Right */
+            width: 12vmin; height: 12vmin; /* Big Size */
+            background: var(--bg-card); /* Solid BG to stand out */
+            border: 1px solid var(--border-dim); 
+            cursor: pointer;
+            color: var(--text-main); display: flex; align-items: center; justify-content: center;
+            border-radius: 2vmin; opacity: 1; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
         }
-        .btn-close-settings:hover { opacity: 1; background: rgba(0,0,0,0.05); }
+        .btn-close-settings:active { transform: scale(0.95); }
+        .btn-close-settings .material-symbols-rounded { font-size: 6vmin; }
 
         .settings-section { margin-bottom: 4vmin; }
         .settings-title { font-size: 3vmin; text-transform: uppercase; color: var(--text-sub); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 1.5vmin; }
@@ -220,8 +239,10 @@
 
         .color-grid { display: flex; flex-wrap: wrap; gap: 1.5vmin; }
         .color-dot { 
-            width: 6vmin; height: 6vmin; border-radius: 50%; cursor: pointer; 
-            border: 1px solid rgba(0,0,0,0.1); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            width: 8vmin; height: 8vmin; /* Made slightly bigger for mobile */
+            border-radius: 50%; cursor: pointer; 
+            border: 1px solid rgba(128,128,128,0.3); /* Ensure visible border */
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
         .color-dot:hover { transform: scale(1.2); }
         
@@ -309,6 +330,7 @@
 <script>
     // --- VARIABLES ---
     const root = document.documentElement;
+    const card = document.getElementById('widgetCard');
     const settingsPanel = document.getElementById('settingsPanel');
     const madhabSelector = document.getElementById('madhabSelector');
     const offsetSelector = document.getElementById('offsetSelector');
@@ -344,9 +366,11 @@
         dot.className = 'color-dot';
         dot.style.background = `var(${c.var})`;
         dot.onclick = () => {
+            // Trigger animation
             dot.classList.remove('animate-pop');
             void dot.offsetWidth; 
             dot.classList.add('animate-pop');
+
             root.style.setProperty('--brand-color', `var(${c.var})`);
             localStorage.setItem('sumanWidgetColor', c.var);
         };
@@ -445,6 +469,7 @@
     }
 
     function changeMadhab() {
+        // Animation feedback
         madhabSelector.classList.remove('animate-pop');
         void madhabSelector.offsetWidth;
         madhabSelector.classList.add('animate-pop');

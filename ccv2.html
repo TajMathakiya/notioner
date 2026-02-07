@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suman Widget Ultimate - Gradient Edition</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            /* Text Colors */
+            --text-main: #FFFFFF;
+            --text-sub: rgba(255, 255, 255, 0.75);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            
+            /* Glassmorphism Backgrounds */
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-hover: rgba(255, 255, 255, 0.25);
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            
+            /* Prayer Specific Colors */
+            --color-fajr: #a5d6a7; 
+            --color-sunrise: #ffcc80; 
+            --color-dhuhr: #fff59d; 
+            --color-asr: #ffab91; 
+            --color-maghrib: #ef9a9a; 
+            --color-isha: #90caf9;
+        }
+
+        /* --- GRADIENT PRESETS --- */
+        .bg-ocean { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(to top, #1e3c72 0%, #2a5298 100%); }
+        .bg-sunset { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(to top, #cc2b5e, #753a88); }
+        .bg-forest { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .bg-midnight { background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), linear-gradient(to bottom, #0f2027, #203a43, #2c5364); }
+        .bg-fire { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(to right, #f12711, #f5af19); }
+        .bg-royal { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(to right, #654ea3, #eaafc8); }
+        
+        /* NEW GRADIENTS */
+        .bg-aurora { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(to top, #00c6ff, #0072ff); }
+        .bg-dusk { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); }
+        .bg-morning { background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%); }
+        .bg-deepspace { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), linear-gradient(to right, #434343 0%, black 100%); }
+
+        /* Custom Background Base Style */
+        .bg-custom {
+            background-color: #202020;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            overflow: hidden; 
+        }
+
+        /* MAIN CONTAINER */
+        .widget-container { 
+            display: flex; flex-direction: column;
+            width: 100%; height: 100%;
+            padding: 4vmin; /* Responsive padding */
+            text-align: center; position: relative;
+            background-size: cover; background-position: center;
+            transition: background 0.5s ease;
+            color: var(--text-main);
+            /* FLUID TYPOGRAPHY BASE */
+            font-size: 2.5vmin; 
+        }
+
+        /* HEADER */
+        .header-section { flex-shrink: 0; margin-bottom: 2vmin; }
+        .city-name { margin: 0; font-size: 2.2em; font-weight: 700; letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .dates-container { margin: 0.5vmin 0 0 0; line-height: 1.3; }
+        .hijri-date { color: rgba(255,255,255,0.95); font-weight: 600; font-size: 1.1em; display: block; }
+        .gregorian-date { color: var(--text-sub); font-size: 0.9em; font-weight: 400; }
+        
+        /* FASTING BOX (Glass) */
+        .fasting-times { 
+            flex-shrink: 0; display: flex; justify-content: space-around; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border);
+            padding: 1.5vmin; 
+            border-radius: 1.5vmin;
+            margin-bottom: 2vmin; 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: var(--card-shadow);
+        }
+        .fast-box { display: flex; flex-direction: column; align-items: center; }
+        .fast-icon { font-size: 1.8em; margin-bottom: 0.2vmin; font-variation-settings: 'FILL' 1; }
+        .icon-sehri { color: var(--color-isha); }
+        .icon-iftar { color: var(--color-sunrise); }
+        .fast-label { font-size: 0.7em; text-transform: uppercase; color: var(--text-sub); font-weight: 700; letter-spacing: 0.05em; }
+        .fast-time { font-size: 1.4em; font-weight: 700; color: var(--text-main); line-height: 1.1; margin-top: 0.2vmin; }
+
+        /* PRAYER CARDS CONTAINER */
+        #timetable { 
+            flex-grow: 1; 
+            display: flex; flex-direction: column; 
+            gap: 1vmin; /* Responsive gap */
+            padding-bottom: 1vmin;
+            overflow-y: auto; /* Allow scroll if height is very small */
+        }
+        
+        /* INDIVIDUAL PRAYER CARD */
+        .prayer-card { 
+            flex: 1; /* Stretch to fill space */
+            display: flex; align-items: center; 
+            padding: 0 2vmin; 
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5vmin;
+            transition: all 0.2s ease;
+            min-height: 0; /* Important for flex items to shrink */
+        }
+        .prayer-card:hover { 
+            background: var(--glass-hover); 
+            /* transform: scale(1.01); REMOVED ZOOM EFFECT */
+        }
+        
+        .prayer-info { flex-grow: 1; text-align: left; display: flex; align-items: center; }
+        .prayer-name { font-weight: 600; color: var(--text-main); font-size: 1.2em; letter-spacing: 0.02em; }
+        .prayer-time { font-weight: 700; color: var(--text-main); font-size: 1.4em; font-variant-numeric: tabular-nums; }
+        
+        /* ICONS */
+        .card-icon { 
+            font-size: 1.6em; margin-right: 1.5vmin; 
+            font-variation-settings: 'FILL' 1, 'wght' 400; 
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        .icon-fajr { color: var(--color-fajr); } .icon-sunrise { color: var(--color-sunrise); } .icon-dhuhr { color: var(--color-dhuhr); }
+        .icon-asr { color: var(--color-asr); } .icon-maghrib { color: var(--color-maghrib); } .icon-isha { color: var(--color-isha); }
+
+        /* FOOTER */
+        .footer-section { flex-shrink: 0; margin-top: 0.5vmin; }
+        .status { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* --- CONTROLS --- */
+        .btn-control {
+            position: absolute; top: 16px; left: 16px; width: 32px; height: 32px;
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; opacity: 0.6; transition: all 0.2s ease;
+            z-index: 60; padding: 0;
+        }
+        .btn-control:hover { opacity: 1; background: rgba(0,0,0,0.5); }
+
+        /* --- SETTINGS DRAWER --- */
+        .settings-panel {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 24px;
+            opacity: 0; pointer-events: none; transform: translateY(-10px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 100; text-align: left;
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+            font-size: 16px; /* Fixed size for settings */
+        }
+        .settings-panel.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        
+        .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .settings-header h3 { margin: 0; font-size: 1.2rem; color: white; }
+        .btn-close { background: none; border: none; color: white; cursor: pointer; opacity: 0.7; }
+        .btn-close:hover { opacity: 1; }
+
+        .settings-section { margin-bottom: 24px; }
+        .settings-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+        
+        /* INPUTS */
+        .input-group { display: flex; gap: 8px; }
+        .city-input, .url-input {
+            width: 100%; padding: 12px; border-radius: 6px;
+            border: 1px solid #444; background: #333; color: white;
+            font-family: inherit; font-size: 0.95rem; outline: none;
+        }
+        .city-input:focus, .url-input:focus { border-color: #666; }
+        
+        .btn-action {
+            padding: 0 16px; border-radius: 6px; border: 1px solid #555;
+            background: #444; color: white; cursor: pointer; font-size: 0.9rem;
+            white-space: nowrap; transition: background 0.2s;
+        }
+        .btn-action:hover { background: #555; }
+
+        .madhab-select {
+            width: 100%; padding: 12px; border-radius: 6px;
+            border: 1px solid #444; background: #333; color: white;
+            font-family: inherit; font-size: 0.95rem; outline: none;
+        }
+
+        /* BACKGROUND PREVIEW GRID */
+        .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .bg-preview { 
+            height: 45px; border-radius: 6px; cursor: pointer; 
+            border: 2px solid transparent; transition: transform 0.2s;
+        }
+        .bg-preview:hover { transform: scale(1.05); }
+        .bg-preview.active { border-color: white; transform: scale(0.95); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+        /* AUTOCOMPLETE */
+        .suggestions-list {
+            background: #333; border: 1px solid #444; border-radius: 6px;
+            margin-top: 4px; max-height: 150px; overflow-y: auto;
+            position: absolute; width: calc(100% - 48px); z-index: 200; display: none;
+        }
+        .suggestions-list.show { display: block; }
+        .suggestion-item { padding: 10px; font-size: 0.9rem; color: #ddd; cursor: pointer; border-bottom: 1px solid #444; }
+        .suggestion-item:hover { background: #444; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+
+    </style>
+</head>
+<body id="body">
+
+<!-- Main Container with Dynamic Class for Gradient -->
+<div class="widget-container bg-ocean" id="widgetContainer">
+    
+    <button class="btn-control" onclick="toggleSettings()" title="Settings">
+        <span class="material-symbols-rounded" style="margin:0; font-size:20px;">settings</span>
+    </button>
+
+    <!-- Settings Overlay -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h3>Widget Settings</h3>
+            <button class="btn-close" onclick="toggleSettings()"><span class="material-symbols-rounded">close</span></button>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">Background Theme</div>
+            <div class="bg-grid">
+                <!-- Original -->
+                <div class="bg-preview bg-ocean" onclick="setBg('bg-ocean')" title="Ocean Blue"></div>
+                <div class="bg-preview bg-sunset" onclick="setBg('bg-sunset')" title="Sunset Purple"></div>
+                <div class="bg-preview bg-forest" onclick="setBg('bg-forest')" title="Forest Green"></div>
+                <div class="bg-preview bg-midnight" onclick="setBg('bg-midnight')" title="Midnight Dark"></div>
+                <div class="bg-preview bg-fire" onclick="setBg('bg-fire')" title="Fire Orange"></div>
+                <div class="bg-preview bg-royal" onclick="setBg('bg-royal')" title="Royal Lavender"></div>
+                <!-- New -->
+                <div class="bg-preview bg-aurora" onclick="setBg('bg-aurora')" title="Aurora"></div>
+                <div class="bg-preview bg-dusk" onclick="setBg('bg-dusk')" title="Dusk Pastel"></div>
+                <div class="bg-preview bg-morning" onclick="setBg('bg-morning')" title="Fresh Morning"></div>
+                <div class="bg-preview bg-deepspace" onclick="setBg('bg-deepspace')" title="Deep Space"></div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">Custom Image URL</div>
+            <div class="input-group">
+                <input type="text" class="url-input" id="bgUrlInput" placeholder="Paste direct image link...">
+                <button class="btn-action" onclick="applyCustomBg()">Set</button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">Location</div>
+            <div style="position:relative">
+                <input type="text" class="city-input" id="cityInput" placeholder="Search city..." autocomplete="off">
+                <div class="suggestions-list" id="suggestionsList"></div>
+            </div>
+            <div id="location-status" style="font-size:0.8rem; color:var(--text-sub); margin-top:6px;">Auto-detecting...</div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">Iftar Safety Delay</div>
+            <select class="madhab-select" id="offsetSelector" onchange="changeOffset()">
+                <option value="0">0 Minutes (Astronomical)</option>
+                <option value="1">+1 Minute</option>
+                <option value="2">+2 Minutes</option>
+                <option value="3">+3 Minutes</option>
+                <option value="4">+4 Minutes</option>
+                <option value="5">+5 Minutes</option>
+                <option value="10">+10 Minutes</option>
+            </select>
+            <div style="font-size:0.75rem; color:var(--text-sub); margin-top:6px; opacity:0.8;">Adds buffer to Maghrib/Iftar time.</div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">Calculation Method</div>
+            <select class="madhab-select" id="madhabSelector" onchange="changeMadhab()">
+                <option value="1">Hanafi (Standard)</option>
+                <option value="0">Shafi / Maliki / Hanbali</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="header-section">
+        <div id="city-display" class="city-name">Locating...</div>
+        <div class="dates-container">
+            <span id="hijri-date" class="hijri-date">---</span>
+            <span id="gregorian-date" class="gregorian-date">---</span>
+        </div>
+    </div>
+
+    <div class="fasting-times">
+        <div class="fast-box">
+            <span class="material-symbols-rounded fast-icon icon-sehri">alarm</span>
+            <span class="fast-time" id="Sehri">--:--</span>
+            <span class="fast-label">Sehri Ends</span>
+        </div>
+        <div class="fast-box">
+            <span class="material-symbols-rounded fast-icon icon-iftar">restaurant</span>
+            <span class="fast-time" id="Iftar">--:--</span>
+            <span class="fast-label">Iftar Time</span>
+        </div>
+    </div>
+    
+    <div id="timetable">
+        <div class="prayer-card"><div class="prayer-info"><span class="material-symbols-rounded card-icon icon-fajr">wb_twilight</span><span class="prayer-name">Fajr</span></div><span id="Fajr" class="prayer-time">--:--</span></div>
+        <div class="prayer-card"><div class="prayer-info"><span class="material-symbols-rounded card-icon icon-sunrise">wb_sunny</span><span class="prayer-name">Sunrise</span></div><span id="Sunrise" class="prayer-time">--:--</span></div>
+        <div class="prayer-card"><div class="prayer-info"><span class="material-symbols-rounded card-icon icon-dhuhr">light_mode</span><span class="prayer-name">Dhuhr</span></div><span id="Dhuhr" class="prayer-time">--:--</span></div>
+        <div class="prayer-card"><div class="prayer-info"><span class="material-symbols-rounded card-icon icon-asr">sunny</span><span class="prayer-name">Asr</span></div><span id="Asr" class="prayer-time">--:--</span></div>
+        <div class="prayer-card"><div class="prayer-info"><span class="material-symbols-rounded card-icon icon-maghrib">wb_twilight</span><span class="prayer-name">Maghrib</span></div><span id="Maghrib" class="prayer-time">--:--</span></div>
+        <div class="prayer-card"><div class="prayer-info"><span class="material-symbols-rounded card-icon icon-isha">bedtime</span><span class="prayer-name">Isha</span></div><span id="Isha" class="prayer-time">--:--</span></div>
+    </div>
+
+    <div class="footer-section"><div class="status" id="statusText">Hanafi • Karachi Method</div></div>
+</div>
+
+<script>
+    // --- VARIABLES ---
+    const container = document.getElementById('widgetContainer');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const madhabSelector = document.getElementById('madhabSelector');
+    const offsetSelector = document.getElementById('offsetSelector');
+    const cityInput = document.getElementById('cityInput');
+    const bgUrlInput = document.getElementById('bgUrlInput');
+    const suggestionsList = document.getElementById('suggestionsList');
+    const locationStatus = document.getElementById('location-status');
+    const cityDisplay = document.getElementById('city-display');
+    let debounceTimer;
+
+    // --- 1. BACKGROUND & THEME LOGIC ---
+    function setBg(className) {
+        // Remove existing bg classes & style
+        container.classList.remove('bg-ocean', 'bg-sunset', 'bg-forest', 'bg-midnight', 'bg-fire', 'bg-royal', 'bg-aurora', 'bg-dusk', 'bg-morning', 'bg-deepspace', 'bg-custom');
+        container.style.backgroundImage = ''; 
+        
+        // Add new class
+        container.classList.add(className);
+        
+        // Save
+        localStorage.setItem('sumanWidgetBg', className);
+        localStorage.removeItem('sumanWidgetCustomUrl'); 
+        
+        // Update active state in settings
+        document.querySelectorAll('.bg-preview').forEach(el => el.classList.remove('active'));
+        const activeBtn = document.querySelector(`.bg-preview.${className}`);
+        if(activeBtn) activeBtn.classList.add('active');
+        
+        // Clear input
+        bgUrlInput.value = '';
+    }
+
+    function applyCustomBg() {
+        const url = bgUrlInput.value.trim();
+        if(!url) return;
+        
+        // Remove existing bg classes
+        container.classList.remove('bg-ocean', 'bg-sunset', 'bg-forest', 'bg-midnight', 'bg-fire', 'bg-royal', 'bg-aurora', 'bg-dusk', 'bg-morning', 'bg-deepspace');
+        container.classList.add('bg-custom');
+        
+        // Apply Image with Dark Overlay
+        container.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('${url}')`;
+        
+        // Save
+        localStorage.setItem('sumanWidgetCustomUrl', url);
+        localStorage.removeItem('sumanWidgetBg');
+        
+        // Remove active state from presets
+        document.querySelectorAll('.bg-preview').forEach(el => el.classList.remove('active'));
+    }
+
+    // Load saved background
+    const savedCustomUrl = localStorage.getItem('sumanWidgetCustomUrl');
+    const savedBgClass = localStorage.getItem('sumanWidgetBg');
+
+    if(savedCustomUrl) {
+        bgUrlInput.value = savedCustomUrl;
+        applyCustomBg();
+    } else {
+        setBg(savedBgClass || 'bg-ocean');
+    }
+
+
+    // --- 2. LOAD OTHER SETTINGS ---
+    let currentMadhab = localStorage.getItem('sumanWidgetMadhab') || '1';
+    madhabSelector.value = currentMadhab;
+    
+    let currentOffset = parseInt(localStorage.getItem('sumanWidgetOffset') || '0');
+    offsetSelector.value = currentOffset;
+
+    updateStatusText();
+
+    // --- 3. LOCATION LOGIC ---
+    let savedLat = localStorage.getItem('sumanLat');
+    let savedLon = localStorage.getItem('sumanLon');
+    let savedCity = localStorage.getItem('sumanCity');
+
+    if (savedLat && savedLon && savedCity) {
+        // MANUAL MODE
+        locationStatus.innerText = "Location locked: " + savedCity;
+        cityInput.value = savedCity; 
+        updateWidget(savedLat, savedLon, savedCity);
+    } else {
+        // AUTO MODE
+        locationStatus.innerText = "Detecting location...";
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    locationStatus.innerText = "Auto-detected";
+                    
+                    fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+                        .then(r => r.json())
+                        .then(data => {
+                            const detectedCity = data.city || "My Location";
+                            cityInput.value = detectedCity;
+                            updateWidget(lat, lon, detectedCity);
+                        });
+                },
+                (err) => {
+                    cityDisplay.innerText = "Select City";
+                    locationStatus.innerText = "GPS Failed. Search manually.";
+                    if(!settingsPanel.classList.contains('show')) toggleSettings();
+                }
+            );
+        } else {
+            cityDisplay.innerText = "Select City";
+            toggleSettings();
+        }
+    }
+
+    // --- 4. AUTOCOMPLETE SEARCH ---
+    cityInput.addEventListener('input', function() {
+        const query = this.value;
+        clearTimeout(debounceTimer);
+        
+        if (query.length < 3) {
+            suggestionsList.classList.remove('show');
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`)
+                .then(r => r.json())
+                .then(data => {
+                    suggestionsList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(place => {
+                            const item = document.createElement('div');
+                            item.className = 'suggestion-item';
+                            const parts = place.display_name.split(',');
+                            const mainName = parts[0];
+                            const country = parts[parts.length - 1];
+                            
+                            item.innerHTML = `<strong>${mainName}</strong> <small style="opacity:0.6">${country}</small>`;
+                            
+                            item.onclick = () => {
+                                selectCity(place.lat, place.lon, mainName);
+                            };
+                            suggestionsList.appendChild(item);
+                        });
+                        suggestionsList.classList.add('show');
+                    } else {
+                        suggestionsList.classList.remove('show');
+                    }
+                });
+        }, 300);
+    });
+
+    function selectCity(lat, lon, name) {
+        localStorage.setItem('sumanLat', lat);
+        localStorage.setItem('sumanLon', lon);
+        localStorage.setItem('sumanCity', name);
+
+        cityInput.value = name; 
+        suggestionsList.classList.remove('show');
+        locationStatus.innerText = "Location locked: " + name;
+        
+        updateWidget(lat, lon, name);
+    }
+
+    // --- 5. GENERAL FUNCTIONS ---
+    function toggleSettings() { 
+        settingsPanel.classList.toggle('show'); 
+    }
+
+    function changeMadhab() {
+        currentMadhab = madhabSelector.value;
+        localStorage.setItem('sumanWidgetMadhab', currentMadhab);
+        updateStatusText();
+        refreshData();
+    }
+    
+    function changeOffset() {
+        currentOffset = parseInt(offsetSelector.value);
+        localStorage.setItem('sumanWidgetOffset', currentOffset);
+        refreshData();
+    }
+    
+    function refreshData() {
+        if(localStorage.getItem('sumanLat')) {
+            updateWidget(localStorage.getItem('sumanLat'), localStorage.getItem('sumanLon'), localStorage.getItem('sumanCity'));
+        } else {
+            location.reload(); 
+        }
+    }
+
+    function updateStatusText() {
+        const method = currentMadhab === '1' ? 'Hanafi' : 'Shafi';
+        document.getElementById('statusText').innerText = `${method} • Karachi Method`;
+    }
+
+    function formatAMPM(time) {
+        if(!time) return "--:--";
+        // Clean any extra characters just in case (e.g. (PKT))
+        time = time.split(' ')[0];
+        
+        let [h, m] = time.split(':');
+        h = parseInt(h);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        const hStr = h < 10 ? '0' + h : h;
+        return `${hStr}:${m} ${ampm}`;
+    }
+    
+    // Helper to add minutes to "HH:MM"
+    function addMinutes(timeStr, mins) {
+        if(!timeStr) return timeStr;
+        timeStr = timeStr.split(' ')[0]; // Remove timezone part if exists
+        let [h, m] = timeStr.split(':').map(Number);
+        
+        m += mins;
+        if(m >= 60) {
+            h += Math.floor(m / 60);
+            m = m % 60;
+        }
+        if(h >= 24) h = h % 24;
+        
+        return `${h}:${m < 10 ? '0' + m : m}`;
+    }
+
+    async function updateWidget(lat, lon, cityName) {
+        document.getElementById('city-display').innerText = cityName;
+        try {
+            const url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=1&school=${currentMadhab}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            const t = data.data.timings;
+            const d = data.data.date;
+
+            document.getElementById('hijri-date').innerText = `${d.hijri.day} ${d.hijri.month.en} ${d.hijri.year} AH`;
+            document.getElementById('gregorian-date').innerText = `${d.gregorian.day} ${d.gregorian.month.en} ${d.gregorian.year}`;
+            
+            // Sehri uses Imsak (usually already buffered)
+            document.getElementById('Sehri').innerText = formatAMPM(t.Imsak);
+            
+            // Apply Offset to Maghrib (Iftar)
+            const iftarTime = addMinutes(t.Maghrib, currentOffset);
+            
+            document.getElementById('Iftar').innerText = formatAMPM(iftarTime);
+            document.getElementById('Maghrib').innerText = formatAMPM(iftarTime);
+
+            // Other prayers
+            document.getElementById('Fajr').innerText = formatAMPM(t.Fajr);
+            document.getElementById('Sunrise').innerText = formatAMPM(t.Sunrise);
+            document.getElementById('Dhuhr').innerText = formatAMPM(t.Dhuhr);
+            document.getElementById('Asr').innerText = formatAMPM(t.Asr);
+            document.getElementById('Isha').innerText = formatAMPM(t.Isha);
+            
+        } catch(e) { 
+            console.error(e);
+            document.getElementById('city-display').innerText = "Connection Error"; 
+        }
+    }
+
+</script>
+</body>
+</html>

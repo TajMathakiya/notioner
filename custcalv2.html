@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suman Widget Ultimate UX - Full Scale</title>
+    <title>Suman Widget Ultimate UX - Clean</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     
     <style>
@@ -15,52 +15,47 @@
             --fasting-bg: #F7F6F3; --border-dim: rgba(120, 119, 116, 0.2);
             --toggle-icon: #37352F;
             
-            /* Notion Colors */
-            --notion-gray: #787774; --notion-brown: #9F6B53; --notion-orange: #D9730D;
-            --notion-yellow: #CB912F; --notion-green: #448361; --notion-blue: #337EA9;
-            --notion-purple: #9065B0; --notion-pink: #C14C8A; --notion-red: #D44C47;
-
             /* Default Brand */
-            --brand-color: var(--notion-green); 
+            --brand-color: #448361; 
             
             /* Prayer Colors */
             --color-fajr: #448361; --color-sunrise: #9F6B53; --color-dhuhr: #CB912F; 
             --color-asr: #D9730D; --color-maghrib: #D44C47; --color-isha: #337EA9;
-            
-            --shadow: none; 
         }
 
-        [data-theme="dark"] {
+        /* DARK THEME APPLIED TO ROOT */
+        :root[data-theme="dark"] {
             --bg-card: #191919; 
             --bg-drawer: #202020; 
             --text-main: #D4D4D4; --text-sub: #9B9A97;
             --fasting-bg: #252525; --border-dim: rgba(255, 255, 255, 0.1);
             --toggle-icon: #D4D4D4;
             
-            --notion-gray: #9B9A97; --notion-brown: #BA856F; --notion-orange: #C77D48;
-            --notion-yellow: #CA9849; --notion-green: #529E72; --notion-blue: #5E87C9;
-            --notion-purple: #9D68D3; --notion-pink: #D15796; --notion-red: #DF5452;
-
             --color-fajr: #529E72; --color-sunrise: #BA856F; --color-dhuhr: #CA9849; 
             --color-asr: #C77D48; --color-maghrib: #DF5452; --color-isha: #5E87C9;
         }
 
         * { box-sizing: border-box; }
 
-        body { 
-            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
-            display: flex; justify-content: center; align-items: center; 
-            width: 100vw; height: 100vh; margin: 0; background-color: var(--bg-card);
+        /* Ensure HTML and BODY take full color to hide corners */
+        html, body {
+            width: 100%; height: 100%; margin: 0; padding: 0;
             overflow: hidden;
+            background-color: var(--bg-card); /* Matches card color */
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
+        body { 
+            display: flex; justify-content: center; align-items: center; 
         }
 
         .card { 
             display: flex; flex-direction: column;
             width: 100%; height: 100%;
             background: var(--bg-card);
-            /* Borders Restored */
+            /* Borders */
             border: 3px solid var(--brand-color);
-            border-radius: 2.5vmin; /* Scalable rounded corners */
+            border-radius: 2.5vmin; 
             
             padding: 2vmin; 
             text-align: center; position: relative;
@@ -68,7 +63,7 @@
             overflow: hidden; 
         }
         
-        /* HEADER - Scalable Units (vmin) */
+        /* HEADER */
         .header-section { flex-shrink: 0; margin-bottom: 1.5vmin; }
         .city-name { 
             margin: 0; font-weight: 700; letter-spacing: -0.03em; 
@@ -85,7 +80,7 @@
             font-size: 2.8vmin; 
         }
         
-        /* FASTING BOX - Scalable */
+        /* FASTING BOX */
         .fasting-times { 
             flex-shrink: 0; display: flex; justify-content: space-around; 
             background: var(--fasting-bg); padding: 1.5vmin; 
@@ -109,7 +104,7 @@
             font-size: 4vmin; 
         }
 
-        /* PRAYER TABLE - Scalable */
+        /* PRAYER TABLE */
         #timetable { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-evenly; }
         .prayer-row { 
             display: flex; align-items: center; padding: 0.8vmin 0.5vmin; 
@@ -128,7 +123,7 @@
             font-size: 4vmin; 
         }
         
-        /* ICONS - Scalable */
+        /* ICONS */
         .material-symbols-rounded { 
             margin-right: 2vmin; font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 48; transition: color 0.3s ease; 
             font-size: 5.5vmin; 
@@ -161,7 +156,7 @@
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: var(--bg-drawer); 
             border: 1px solid var(--border-dim);
-            border-radius: 2.5vmin; /* Match card radius */
+            border-radius: 2.5vmin;
             padding: 4vmin;
             opacity: 0; pointer-events: none; transform: translateY(-10px);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -171,7 +166,6 @@
         }
         .settings-panel.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
         
-        /* Close Button inside Settings */
         .btn-close-settings {
             position: absolute; top: 2vmin; right: 2vmin;
             width: 6vmin; height: 6vmin;
@@ -184,7 +178,7 @@
         .settings-section { margin-bottom: 4vmin; }
         .settings-title { font-size: 3vmin; text-transform: uppercase; color: var(--text-sub); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 1.5vmin; }
         
-        /* AUTOCOMPLETE STYLES */
+        /* AUTOCOMPLETE */
         .autocomplete-container { position: relative; width: 100%; }
         .city-input {
             width: 100%; padding: 2vmin; border-radius: 1vmin;
@@ -231,11 +225,8 @@
         }
         .color-dot:hover { transform: scale(1.2); }
         
-        /* Animation Keyframe for POP effect */
         @keyframes pop { 
-            0% { transform: scale(1); } 
-            50% { transform: scale(1.15); } 
-            100% { transform: scale(1); } 
+            0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } 
         }
         .animate-pop { animation: pop 0.2s ease-in-out; }
 
@@ -318,7 +309,6 @@
 <script>
     // --- VARIABLES ---
     const root = document.documentElement;
-    const card = document.getElementById('widgetCard');
     const settingsPanel = document.getElementById('settingsPanel');
     const madhabSelector = document.getElementById('madhabSelector');
     const offsetSelector = document.getElementById('offsetSelector');
@@ -354,11 +344,9 @@
         dot.className = 'color-dot';
         dot.style.background = `var(${c.var})`;
         dot.onclick = () => {
-            // Trigger animation
             dot.classList.remove('animate-pop');
             void dot.offsetWidth; 
             dot.classList.add('animate-pop');
-
             root.style.setProperty('--brand-color', `var(${c.var})`);
             localStorage.setItem('sumanWidgetColor', c.var);
         };
@@ -457,7 +445,6 @@
     }
 
     function changeMadhab() {
-        // Animation feedback
         madhabSelector.classList.remove('animate-pop');
         void madhabSelector.offsetWidth;
         madhabSelector.classList.add('animate-pop');
@@ -488,23 +475,23 @@
     }
 
     const icon = document.getElementById('toggleIcon');
-    const body = document.getElementById('body');
+    
     function setTheme(isDark) {
         if(isDark) { 
-            card.setAttribute('data-theme','dark'); 
-            body.setAttribute('data-theme','dark'); 
+            document.documentElement.setAttribute('data-theme','dark'); 
             icon.innerText = 'light_mode'; 
         } else { 
-            card.removeAttribute('data-theme'); 
-            body.removeAttribute('data-theme'); 
+            document.documentElement.removeAttribute('data-theme'); 
             icon.innerText = 'dark_mode'; 
         }
     }
     const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
     setTheme(sysDark.matches);
     sysDark.addEventListener('change', e => setTheme(e.matches));
+    
     function toggleTheme() { 
-        setTheme(!card.hasAttribute('data-theme')); 
+        const isDark = document.documentElement.hasAttribute('data-theme');
+        setTheme(!isDark); 
     }
 
     function formatAMPM(time) {
